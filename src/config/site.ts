@@ -11,7 +11,7 @@ export const CONTACT_EMAIL = 'uakashanews@gmail.com';
 export const ADDRESS = 'Rahim Yar Khan, Punjab, Pakistan';
 export const DELIVERY_TIME_TEXT = '';
 export const RETURN_POLICY_TEXT = '';
-export const SITE_URL = 'https://REPLACE_WITH_MY_DOMAIN';
+export const SITE_URL = (import.meta as any).env?.VITE_SITE_URL || (typeof process !== 'undefined' && process.env ? process.env.VITE_SITE_URL : '') || (typeof window !== 'undefined' ? window.location.origin : '');
 export const SOCIAL_FACEBOOK = '';
 export const SOCIAL_INSTAGRAM = '';
 
@@ -28,7 +28,7 @@ export function isPlaceholderEmail(email?: string | null): boolean {
 export const siteConfig = {
   name: "BARVAKA",
   tagline: "Quality · Fast Delivery · Trust · Khayr",
-  subtitle: "Pakistan's Premier Multi-Category Online Store",
+  subtitle: "Multi-category online store",
   currency: "PKR",
   currencySymbol: "Rs.",
   deliveryFee: 0,
@@ -53,22 +53,22 @@ export const siteConfig = {
   pillars: [
     {
       title: "Quality",
-      description: "Rigorous quality check on every fabric, stitch, and component.",
+      description: "Products chosen with care.",
       icon: "ShieldCheck",
     },
     {
       title: "Fast Delivery",
-      description: "Free delivery on all orders nationwide across Pakistan.",
+      description: "Free delivery on all orders.",
       icon: "Truck",
     },
     {
       title: "Trust",
-      description: "Cash on delivery only. Pay upon receiving your package.",
+      description: "Cash on delivery only. Pay when your order arrives.",
       icon: "CheckCircle2",
     },
     {
       title: "Khayr",
-      description: "Honest pricing and genuine customer service.",
+      description: "Honest pricing and respectful service.",
       icon: "HeartHandshake",
     },
   ],

@@ -19,21 +19,110 @@ export function validateImageFile(file: File): { valid: boolean; error?: string 
   return { valid: true };
 }
 
+/**
+ * Resizes an image client-side using an HTML Canvas to at most 1200 px on the longest side
+ * and re-encodes as WebP at quality 0.82 (with JPEG quality 0.82 fallback).
+ */
+export async function compressImage(file: File): Promise<File> {
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return file;
+  }
+  if (!file.type || !file.type.startsWith('image/')) {
+    return file;
+  }
+
+  return new Promise((resolve) => {
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      try {
+        let width = img.naturalWidth || img.width;
+        let height = img.naturalHeight || img.height;
+        const maxSide = 1200;
+
+        if (width > maxSide || height > maxSide) {
+          if (width >= height) {
+            height = Math.round((height * maxSide) / width);
+            width = maxSide;
+          } else {
+            width = Math.round((width * maxSide) / height);
+            height = maxSide;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(file);
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob && blob.size > 0) {
+              const baseName = file.name.replace(/\.[^/.]+$/, '');
+              const compressed = new File([blob], `${baseName}.webp`, {
+                type: 'image/webp',
+                lastModified: Date.now(),
+              });
+              resolve(compressed);
+            } else {
+              canvas.toBlob(
+                (jpegBlob) => {
+                  if (jpegBlob && jpegBlob.size > 0) {
+                    const baseName = file.name.replace(/\.[^/.]+$/, '');
+                    const fallback = new File([jpegBlob], `${baseName}.jpg`, {
+                      type: 'image/jpeg',
+                      lastModified: Date.now(),
+                    });
+                    resolve(fallback);
+                  } else {
+                    resolve(file);
+                  }
+                },
+                'image/jpeg',
+                0.82
+              );
+            }
+          },
+          'image/webp',
+          0.82
+        );
+      } catch {
+        resolve(file);
+      }
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(file);
+    };
+
+    img.src = objectUrl;
+  });
+}
+
 export const storageService = {
   async uploadProductImage(productId: string, file: File): Promise<string> {
-    const check = validateImageFile(file);
+    const compressed = await compressImage(file);
+    const check = validateImageFile(compressed);
     if (!check.valid) throw new Error(check.error);
 
     if (isDemoMode || !supabase) {
-      // In demo mode, return an object URL or high quality unsplash image
-      return URL.createObjectURL(file);
+      return URL.createObjectURL(compressed);
     }
 
     const timestamp = Date.now();
-    const cleanFileName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '');
+    const cleanFileName = compressed.name.replace(/[^a-zA-Z0-9.\-_]/g, '');
     const path = `products/${productId}/${timestamp}-${cleanFileName}`;
 
-    const { error } = await supabase.storage.from(BUCKET_NAME).upload(path, file, {
+    const { error } = await supabase.storage.from(BUCKET_NAME).upload(path, compressed, {
       cacheControl: '3600',
       upsert: false,
     });
@@ -44,18 +133,19 @@ export const storageService = {
   },
 
   async uploadCategoryImage(categoryId: string, file: File): Promise<string> {
-    const check = validateImageFile(file);
+    const compressed = await compressImage(file);
+    const check = validateImageFile(compressed);
     if (!check.valid) throw new Error(check.error);
 
     if (isDemoMode || !supabase) {
-      return URL.createObjectURL(file);
+      return URL.createObjectURL(compressed);
     }
 
     const timestamp = Date.now();
-    const cleanFileName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '');
+    const cleanFileName = compressed.name.replace(/[^a-zA-Z0-9.\-_]/g, '');
     const path = `categories/${categoryId}/${timestamp}-${cleanFileName}`;
 
-    const { error } = await supabase.storage.from(BUCKET_NAME).upload(path, file, {
+    const { error } = await supabase.storage.from(BUCKET_NAME).upload(path, compressed, {
       cacheControl: '3600',
       upsert: false,
     });

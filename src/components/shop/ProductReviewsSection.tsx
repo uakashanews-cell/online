@@ -8,6 +8,7 @@ import { Star, ShieldCheck, CheckCircle2, MessageSquare, AlertCircle, Sparkles, 
 import { Product, ProductReview } from '../../types';
 import { useStore } from '../../context/StoreContext';
 import { calculateReviewSummary, validateReviewInput } from '../../utils/ecommerce-logic';
+import { isDemoMode } from '../../lib/supabaseClient';
 
 interface ProductReviewsSectionProps {
   product: Product;
@@ -18,6 +19,9 @@ export const ProductReviewsSection: React.FC<ProductReviewsSectionProps> = ({
   product,
   openAuthModal,
 }) => {
+  if (!isDemoMode) {
+    return null;
+  }
   const {
     reviews,
     currentUser,

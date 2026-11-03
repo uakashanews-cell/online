@@ -5,14 +5,15 @@
 
 import { supabase, isDemoMode } from '../lib/supabaseClient';
 import { HomeBanner } from '../types';
+import { compressImage, validateImageFile } from './storageService';
 
 let localBanner: HomeBanner = {
   id: 1,
   is_active: true,
-  label: 'Curated Essentials',
-  headline: 'Little things that make a house feel like home',
-  subtext: 'Thoughtfully curated attire, leather accessories, and home accents delivered across Pakistan.',
-  button_text: 'Explore the shop',
+  label: 'New',
+  headline: 'Welcome to BARVAKA',
+  subtext: 'Free delivery on all orders. Pay on arrival.',
+  button_text: 'Shop now',
   button_link: '/shop',
   image_url: null,
   ends_at: null,
@@ -80,39 +81,33 @@ export const bannerService = {
       return { ...localBanner };
     }
 
-    try {
-      const { data, error } = await supabase
-        .from('home_banner')
-        .select('*')
-        .eq('id', 1)
-        .maybeSingle();
+    const { data, error } = await supabase
+      .from('home_banner')
+      .select('*')
+      .eq('id', 1)
+      .maybeSingle();
 
-      if (error) {
-        console.warn('Error reading admin home_banner:', error.message);
-        return { ...localBanner };
-      }
+    if (error) {
+      throw new Error('Banner table not found or not accessible. Run the home_banner SQL in Supabase.');
+    }
 
-      if (!data) {
-        // Return default structure if row not initialized
-        return { ...localBanner };
-      }
-
-      return {
-        id: data.id,
-        is_active: Boolean(data.is_active),
-        label: data.label || '',
-        headline: data.headline || '',
-        subtext: data.subtext || '',
-        button_text: data.button_text || 'Explore',
-        button_link: data.button_link || '/shop',
-        image_url: data.image_url || null,
-        ends_at: data.ends_at || null,
-        updated_at: data.updated_at,
-      };
-    } catch (err) {
-      console.warn('Fallback admin banner on error:', err);
+    if (!data) {
+      // Return default structure if row not initialized
       return { ...localBanner };
     }
+
+    return {
+      id: data.id,
+      is_active: Boolean(data.is_active),
+      label: data.label || '',
+      headline: data.headline || '',
+      subtext: data.subtext || '',
+      button_text: data.button_text || 'Shop now',
+      button_link: data.button_link || '/shop',
+      image_url: data.image_url || null,
+      ends_at: data.ends_at || null,
+      updated_at: data.updated_at,
+    };
   },
 
   /**
@@ -134,7 +129,7 @@ export const bannerService = {
       label: (data.label || '').slice(0, 30),
       headline: (data.headline || '').slice(0, 80),
       subtext: (data.subtext || '').slice(0, 200),
-      button_text: (data.button_text || 'Explore').slice(0, 24),
+      button_text: (data.button_text || 'Shop now').slice(0, 24),
       button_link: (data.button_link && data.button_link.startsWith('/') ? data.button_link : '/shop'),
       image_url: data.image_url ?? null,
       ends_at: data.ends_at ? new Date(data.ends_at).toISOString() : null,
@@ -156,7 +151,9 @@ export const bannerService = {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      throw new Error('Banner table not found or not accessible. Run the home_banner SQL in Supabase.');
+    }
 
     return {
       id: updated.id,
@@ -164,7 +161,7 @@ export const bannerService = {
       label: updated.label || '',
       headline: updated.headline || '',
       subtext: updated.subtext || '',
-      button_text: updated.button_text || 'Explore',
+      button_text: updated.button_text || 'Shop now',
       button_link: updated.button_link || '/shop',
       image_url: updated.image_url || null,
       ends_at: updated.ends_at || null,
@@ -176,17 +173,20 @@ export const bannerService = {
    * Uploads banner image to 'product-images' storage bucket under 'banners/'
    */
   async uploadBannerImage(file: File): Promise<string> {
+    const compressed = await compressImage(file);
+    const check = validateImageFile(compressed);
+    if (!check.valid) throw new Error(check.error);
+
     if (isDemoMode || !supabase) {
-      return URL.createObjectURL(file);
+      return URL.createObjectURL(compressed);
     }
 
-    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-    const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const safeName = compressed.name.replace(/[^a-zA-Z0-9.-]/g, '_');
     const filePath = `banners/${Date.now()}-${safeName}`;
 
     const { error: uploadError } = await supabase.storage
       .from('product-images')
-      .upload(filePath, file, {
+      .upload(filePath, compressed, {
         cacheControl: '3600',
         upsert: false,
       });

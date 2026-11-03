@@ -36,10 +36,11 @@ export const AdminBannerEditor: React.FC<AdminBannerEditorProps> = ({
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: initialBanner, isLoading } = useQuery({
+  const { data: initialBanner, isLoading, isError, error: queryError } = useQuery({
     queryKey: ['home-banner', 'admin'],
     queryFn: bannerService.getAdminBanner,
     staleTime: 60 * 1000,
+    retry: 1,
   });
 
   // Local form state
@@ -47,7 +48,7 @@ export const AdminBannerEditor: React.FC<AdminBannerEditorProps> = ({
   const [label, setLabel] = useState('');
   const [headline, setHeadline] = useState('');
   const [subtext, setSubtext] = useState('');
-  const [buttonText, setButtonText] = useState('Explore the shop');
+  const [buttonText, setButtonText] = useState('Shop now');
   const [linkSelection, setLinkSelection] = useState<string>('/shop');
   const [customLink, setCustomLink] = useState<string>('');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -57,6 +58,7 @@ export const AdminBannerEditor: React.FC<AdminBannerEditorProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [saveErrorMessage, setSaveErrorMessage] = useState<string | null>(null);
 
   // Sync state when initialBanner loads
   useEffect(() => {
@@ -187,6 +189,7 @@ export const AdminBannerEditor: React.FC<AdminBannerEditorProps> = ({
     }
 
     setIsSaving(true);
+    setSaveErrorMessage(null);
     try {
       // If image changed from the initial row's image, delete the original old image
       if (oldUploadedUrl && imageUrl !== oldUploadedUrl) {
@@ -198,7 +201,7 @@ export const AdminBannerEditor: React.FC<AdminBannerEditorProps> = ({
         label: label.trim().slice(0, 30),
         headline: headline.trim().slice(0, 80),
         subtext: subtext.trim().slice(0, 200),
-        button_text: (buttonText.trim() || 'Explore the shop').slice(0, 24),
+        button_text: (buttonText.trim() || 'Shop now').slice(0, 24),
         button_link: computedButtonLink,
         image_url: imageUrl,
         ends_at: endsAt ? new Date(endsAt).toISOString() : null,
@@ -212,7 +215,11 @@ export const AdminBannerEditor: React.FC<AdminBannerEditorProps> = ({
 
       showToast('Home banner updated successfully!', 'success');
     } catch (err: any) {
-      showToast(err?.message || 'Failed to save home banner.', 'error');
+      const errorMsg = !isDemoMode
+        ? 'Banner table not found or not accessible. Run the home_banner SQL in Supabase.'
+        : (err?.message || 'Failed to save home banner.');
+      setSaveErrorMessage(errorMsg);
+      showToast(errorMsg, 'error');
     } finally {
       setIsSaving(false);
     }
@@ -227,6 +234,22 @@ export const AdminBannerEditor: React.FC<AdminBannerEditorProps> = ({
     );
   }
 
+  if (isError && !isDemoMode) {
+    return (
+      <div className="space-y-6">
+        <div className="p-6 bg-red-50 rounded-[24px] border border-red-300 text-red-900 shadow-xs space-y-3">
+          <div className="flex items-center gap-3 text-red-700 font-bold text-base">
+            <AlertTriangle className="w-6 h-6 text-red-600 shrink-0" />
+            <span>Banner table not found or not accessible. Run the home_banner SQL in Supabase.</span>
+          </div>
+          <p className="text-xs text-red-700">
+            The home_banner table could not be read from your Supabase database. Please execute the home_banner SQL migration in your Supabase SQL editor.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Demo mode warning notice */}
@@ -234,6 +257,13 @@ export const AdminBannerEditor: React.FC<AdminBannerEditorProps> = ({
         <div className="p-4 bg-amber-50 rounded-[16px] border border-amber-200 text-amber-900 flex items-center gap-3 text-xs sm:text-sm font-medium">
           <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
           <span>Demo mode: changes are kept in memory for this session and not permanently saved to Supabase.</span>
+        </div>
+      )}
+
+      {saveErrorMessage && (
+        <div className="p-4 bg-red-50 rounded-[16px] border border-red-300 text-red-700 text-xs sm:text-sm font-semibold flex items-center gap-2.5">
+          <AlertTriangle className="w-5 h-5 text-red-600 shrink-0" />
+          <span>{saveErrorMessage}</span>
         </div>
       )}
 

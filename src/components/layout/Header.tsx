@@ -116,47 +116,74 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Centered Nav Links (Desktop) */}
           <nav className="hidden lg:flex items-center gap-7 text-sm font-medium">
-            <button
-              onClick={() => setCurrentTab('shop')}
+            <a
+              href="/shop"
+              onClick={(e) => {
+                e.preventDefault();
+                setCurrentTab('shop');
+              }}
               className={`hover:text-[#B4502F] transition-colors py-1 ${
                 currentTab === 'shop' ? 'text-[#B4502F] font-bold border-b-2 border-[#B4502F]' : 'text-[#3B2A20]'
               }`}
             >
               Shop
-            </button>
-            <button
-              onClick={() => setCurrentTab('category-fragrances-attar')}
-              className={`hover:text-[#B4502F] transition-colors py-1 ${
-                currentTab === 'category-fragrances-attar' ? 'text-[#B4502F] font-bold border-b-2 border-[#B4502F]' : 'text-[#3B2A20]'
-              }`}
-            >
-              Gifts
-            </button>
-            <button
-              onClick={() => setCurrentTab('about')}
+            </a>
+            {[...activeCategories]
+              .filter((c) => c.is_active)
+              .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+              .slice(0, 4)
+              .map((cat) => (
+                <a
+                  key={cat.id}
+                  href={`/category/${cat.slug}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setCurrentTab(`category-${cat.slug}`);
+                  }}
+                  className={`hover:text-[#B4502F] transition-colors py-1 ${
+                    currentTab === `category-${cat.slug}` ? 'text-[#B4502F] font-bold border-b-2 border-[#B4502F]' : 'text-[#3B2A20]'
+                  }`}
+                >
+                  {cat.name}
+                </a>
+              ))}
+            <a
+              href="/about"
+              onClick={(e) => {
+                e.preventDefault();
+                setCurrentTab('about');
+              }}
               className={`hover:text-[#B4502F] transition-colors py-1 ${
                 currentTab === 'about' ? 'text-[#B4502F] font-bold border-b-2 border-[#B4502F]' : 'text-[#3B2A20]'
               }`}
             >
               About
-            </button>
-            <button
-              onClick={() => setCurrentTab('contact')}
+            </a>
+            <a
+              href="/contact"
+              onClick={(e) => {
+                e.preventDefault();
+                setCurrentTab('contact');
+              }}
               className={`hover:text-[#B4502F] transition-colors py-1 ${
                 currentTab === 'contact' ? 'text-[#B4502F] font-bold border-b-2 border-[#B4502F]' : 'text-[#3B2A20]'
               }`}
             >
               Contact
-            </button>
-            <button
-              onClick={() => setCurrentTab('track-order')}
+            </a>
+            <a
+              href="/track-order"
+              onClick={(e) => {
+                e.preventDefault();
+                setCurrentTab('track-order');
+              }}
               className={`hover:text-[#B4502F] transition-colors py-1 flex items-center gap-1.5 ${
                 currentTab === 'track-order' ? 'text-[#B4502F] font-bold border-b-2 border-[#B4502F]' : 'text-[#3B2A20]'
               }`}
             >
               <PackageCheck className="w-4 h-4 text-[#8A9A7B]" />
-              Track Order
-            </button>
+              Track order
+            </a>
           </nav>
 
           {/* Desktop Search Bar */}

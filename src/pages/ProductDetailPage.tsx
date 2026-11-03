@@ -15,6 +15,7 @@ import { ProductReviewsSection } from '../components/shop/ProductReviewsSection'
 import { formatProductMessage, buildWhatsAppUrl } from '../lib/whatsapp';
 import { usePageSEO } from '../hooks/usePageSEO';
 import { DELIVERY_TIME_TEXT, RETURN_POLICY_TEXT } from '../config/site';
+import { isDemoMode } from '../lib/supabaseClient';
 import {
   Heart,
   Truck,
@@ -401,39 +402,43 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               {product.name}
             </h1>
             <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-[#6B5B50]">
-              {reviewSummary.totalReviews > 0 ? (
-                <a
-                  href="#reviews-section"
-                  className="inline-flex items-center gap-1.5 hover:text-[#3B2A20] transition-colors group cursor-pointer"
-                >
-                  <div className="flex text-[#C98A12]">
-                    {[1, 2, 3, 4, 5].map((s) => (
-                      <Star
-                        key={s}
-                        className={`w-3.5 h-3.5 ${
-                          s <= Math.round(reviewSummary.averageRating)
-                            ? 'fill-[#C98A12] text-[#C98A12]'
-                            : 'text-[#E3D5C4] fill-transparent'
-                        }`}
-                        strokeWidth={1.5}
-                      />
-                    ))}
-                  </div>
-                  <span className="font-bold text-[#3B2A20]">{reviewSummary.averageRating}</span>
-                  <span className="group-hover:underline text-[#6B5B50]">
-                    ({reviewSummary.totalReviews} verified {reviewSummary.totalReviews === 1 ? 'review' : 'reviews'})
-                  </span>
-                </a>
-              ) : (
-                <a
-                  href="#reviews-section"
-                  className="inline-flex items-center gap-1 text-xs text-[#8A9A7B] hover:underline"
-                >
-                  <Star className="w-3.5 h-3.5 text-[#8A9A7B]" />
-                  <span>Be the first to review</span>
-                </a>
+              {isDemoMode && (
+                <>
+                  {reviewSummary.totalReviews > 0 ? (
+                    <a
+                      href="#reviews-section"
+                      className="inline-flex items-center gap-1.5 hover:text-[#3B2A20] transition-colors group cursor-pointer"
+                    >
+                      <div className="flex text-[#C98A12]">
+                        {[1, 2, 3, 4, 5].map((s) => (
+                          <Star
+                            key={s}
+                            className={`w-3.5 h-3.5 ${
+                              s <= Math.round(reviewSummary.averageRating)
+                                ? 'fill-[#C98A12] text-[#C98A12]'
+                                : 'text-[#E3D5C4] fill-transparent'
+                            }`}
+                            strokeWidth={1.5}
+                          />
+                        ))}
+                      </div>
+                      <span className="font-bold text-[#3B2A20]">{reviewSummary.averageRating}</span>
+                      <span className="group-hover:underline text-[#6B5B50]">
+                        ({reviewSummary.totalReviews} verified {reviewSummary.totalReviews === 1 ? 'review' : 'reviews'})
+                      </span>
+                    </a>
+                  ) : (
+                    <a
+                      href="#reviews-section"
+                      className="inline-flex items-center gap-1 text-xs text-[#8A9A7B] hover:underline"
+                    >
+                      <Star className="w-3.5 h-3.5 text-[#8A9A7B]" />
+                      <span>Be the first to review</span>
+                    </a>
+                  )}
+                  <span>·</span>
+                </>
               )}
-              <span>·</span>
               <span>SKU: {selectedVariant?.sku || 'BRV-STD'}</span>
               <span>·</span>
               <span className="text-[#3B2A20] font-medium">100% Genuine Guarantee</span>
@@ -693,10 +698,12 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
       </section>
 
       {/* Customer Reviews Section */}
-      <ProductReviewsSection
-        product={product}
-        openAuthModal={openAuthModal}
-      />
+      {isDemoMode && (
+        <ProductReviewsSection
+          product={product}
+          openAuthModal={openAuthModal}
+        />
+      )}
 
       {/* Related Products */}
       {relatedProducts.length > 0 && (

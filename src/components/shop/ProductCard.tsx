@@ -9,6 +9,7 @@ import { useStore } from '../../context/StoreContext';
 import { formatPKR } from '../../utils/ecommerce-logic';
 import { ImageWithFallback } from '../common/ImageWithFallback';
 import { Heart, Eye, Star } from 'lucide-react';
+import { isDemoMode } from '../../lib/supabaseClient';
 
 interface ProductCardProps {
   product: Product;
@@ -25,9 +26,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const wishlisted = isInWishlist(product.id);
   const [isHovered, setIsHovered] = useState(false);
 
-  // Review stats
-  const productReviews = reviews ? reviews.filter((r) => r.product_id === product.id) : [];
-  const hasReviews = productReviews.length > 0;
+  // Review stats - only shown in demo mode
+  const productReviews = isDemoMode && reviews ? reviews.filter((r) => r.product_id === product.id) : [];
+  const hasReviews = isDemoMode && productReviews.length > 0;
   const avgRating = hasReviews
     ? (productReviews.reduce((sum, r) => sum + r.rating, 0) / productReviews.length).toFixed(1)
     : null;

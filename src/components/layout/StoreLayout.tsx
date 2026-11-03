@@ -173,7 +173,7 @@ export const StoreLayout: React.FC = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => setIsSearchFocused(true)}
                   onBlur={() => setTimeout(() => setIsSearchFocused(false), 250)}
-                  placeholder="Search kurtas, lawn suits, attar, earbuds, wallets..."
+                  placeholder="Search products"
                   className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#E3D5C4] rounded-full text-xs text-[#3B2A20] placeholder:text-[#6B5B50] focus:outline-hidden focus:ring-2 focus:ring-[#B4502F] focus:border-[#B4502F] transition-all"
                 />
                 <Search className="w-4 h-4 text-[#B4502F] absolute left-3.5 top-3" strokeWidth={1.5} />
@@ -292,18 +292,6 @@ export const StoreLayout: React.FC = () => {
           <nav className="hidden md:flex items-center justify-between border-t border-[#E3D5C4] py-2.5 text-xs font-medium">
             <div className="flex items-center gap-7">
               <NavLink
-                to="/"
-                end
-                className={({ isActive }) =>
-                  `transition-colors ${
-                    isActive ? 'text-[#3B2A20] font-bold border-b-2 border-[#B4502F] pb-0.5' : 'text-[#6B5B50] hover:text-[#B4502F]'
-                  }`
-                }
-              >
-                Home
-              </NavLink>
-
-              <NavLink
                 to="/shop"
                 className={({ isActive }) =>
                   `transition-colors ${
@@ -311,23 +299,49 @@ export const StoreLayout: React.FC = () => {
                   }`
                 }
               >
-                Shop All
+                Shop
               </NavLink>
 
-              {/* Category Quick Links */}
-              {categories.slice(0, 4).map((cat) => (
-                <NavLink
-                  key={cat.id}
-                  to={`/category/${cat.slug}`}
-                  className={({ isActive }) =>
-                    `transition-colors ${
-                      isActive ? 'text-[#3B2A20] font-bold border-b-2 border-[#B4502F] pb-0.5' : 'text-[#6B5B50] hover:text-[#B4502F]'
-                    }`
-                  }
-                >
-                  {cat.name}
-                </NavLink>
-              ))}
+              {/* Up to 4 active categories */}
+              {categories
+                .filter((c) => c.is_active)
+                .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+                .slice(0, 4)
+                .map((cat) => (
+                  <NavLink
+                    key={cat.id}
+                    to={`/category/${cat.slug}`}
+                    className={({ isActive }) =>
+                      `transition-colors ${
+                        isActive ? 'text-[#3B2A20] font-bold border-b-2 border-[#B4502F] pb-0.5' : 'text-[#6B5B50] hover:text-[#B4502F]'
+                      }`
+                    }
+                  >
+                    {cat.name}
+                  </NavLink>
+                ))}
+
+              <NavLink
+                to="/about"
+                className={({ isActive }) =>
+                  `transition-colors ${
+                    isActive ? 'text-[#3B2A20] font-bold border-b-2 border-[#B4502F] pb-0.5' : 'text-[#6B5B50] hover:text-[#B4502F]'
+                  }`
+                }
+              >
+                About
+              </NavLink>
+
+              <NavLink
+                to="/contact"
+                className={({ isActive }) =>
+                  `transition-colors ${
+                    isActive ? 'text-[#3B2A20] font-bold border-b-2 border-[#B4502F] pb-0.5' : 'text-[#6B5B50] hover:text-[#B4502F]'
+                  }`
+                }
+              >
+                Contact
+              </NavLink>
 
               <NavLink
                 to="/track-order"
@@ -338,17 +352,8 @@ export const StoreLayout: React.FC = () => {
                 }
               >
                 <PackageCheck className="w-3.5 h-3.5 text-[#B4502F]" strokeWidth={1.5} />
-                Track Order
+                Track order
               </NavLink>
-            </div>
-
-            <div className="flex items-center gap-6 text-xs text-[#6B5B50]">
-              <Link to="/about" className="hover:text-[#B4502F] transition-colors">
-                About BARVAKA
-              </Link>
-              <Link to="/contact" className="hover:text-[#B4502F] transition-colors">
-                Contact & Support
-              </Link>
             </div>
           </nav>
         </div>

@@ -114,6 +114,22 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentTab }) => {
                   Contact &amp; Inquiries
                 </button>
               </li>
+              <li>
+                <Link
+                  to="/privacy"
+                  className="hover:text-[#DDE3D3] transition-colors text-left block"
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/delivery-and-payment"
+                  className="hover:text-[#DDE3D3] transition-colors text-left block"
+                >
+                  Delivery &amp; Payment
+                </Link>
+              </li>
               <li className="pt-1 border-t border-[#6B5B50]/30">
                 <Link
                   to={isAdmin ? '/admin' : '/admin/login'}

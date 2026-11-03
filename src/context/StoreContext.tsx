@@ -247,7 +247,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   });
 
   const [reviews, setReviews] = useState<ProductReview[]>(() => {
-    if (!isDemoMode && supabase) return [];
+    if (!isDemoMode) return [];
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.REVIEWS);
       return saved ? JSON.parse(saved) : SEED_REVIEWS;
@@ -415,6 +415,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [appliedCoupon]);
 
   useEffect(() => {
+    if (!isDemoMode) return;
     localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(reviews));
   }, [reviews]);
 

@@ -29,20 +29,41 @@ import {
 export const AdminLayout: React.FC = () => {
   usePageSEO({ title: 'Admin Panel | BARVAKA', noindex: true });
   const { profile, signOut, isDemoMode } = useAuth();
-  const { logout, showToast, refreshAdminData, isAdminDataLoading } = useStore();
+  const { logout, showToast, refreshAdminData, isAdminDataLoading, orders } = useStore();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
-  // 30-second auto-refresh while tab is visible
+  const pendingOrdersCount = React.useMemo(() => {
+    return orders.filter((o) => o.status === 'pending').length;
+  }, [orders]);
+
+  // 60-second auto-refresh in admin area
   React.useEffect(() => {
     const interval = setInterval(() => {
-      if (document.visibilityState === 'visible') {
-        refreshAdminData(true);
-      }
-    }, 30000);
+      refreshAdminData(true);
+    }, 60000);
 
     return () => clearInterval(interval);
   }, [refreshAdminData]);
+
+  // Prefix browser tab title with "(N) New orders" while N > 0
+  React.useEffect(() => {
+    const baseTitle = 'Admin Panel | BARVAKA';
+    if (pendingOrdersCount > 0) {
+      document.title = `(${pendingOrdersCount}) New orders · ${baseTitle}`;
+    } else {
+      document.title = baseTitle;
+    }
+  }, [pendingOrdersCount]);
+
+  // Show a toast "New order received" when the pending count increases (no sound)
+  const prevPendingRef = React.useRef<number | null>(null);
+  React.useEffect(() => {
+    if (prevPendingRef.current !== null && pendingOrdersCount > prevPendingRef.current) {
+      showToast('New order received', 'info');
+    }
+    prevPendingRef.current = pendingOrdersCount;
+  }, [pendingOrdersCount, showToast]);
 
   // 30-minute inactivity auto-logout
   const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
@@ -81,7 +102,12 @@ export const AdminLayout: React.FC = () => {
 
   const navItems = [
     { to: '/admin', label: 'Dashboard & Sales', icon: LayoutDashboard, end: true },
-    { to: '/admin/orders', label: 'Orders & Dispatch', icon: ShoppingBag },
+    {
+      to: '/admin/orders',
+      label: 'Orders & Dispatch',
+      icon: ShoppingBag,
+      badge: pendingOrdersCount > 0 ? pendingOrdersCount : undefined,
+    },
     { to: '/admin/products', label: 'Products & Stock', icon: Package },
     { to: '/admin/categories', label: 'Categories', icon: Layers },
     { to: '/admin/coupons', label: 'Discount Coupons', icon: Tag },
@@ -184,8 +210,13 @@ export const AdminLayout: React.FC = () => {
                     }`
                   }
                 >
-                  <Icon className="w-4 h-4" strokeWidth={1.5} />
-                  <span>{item.label}</span>
+                  <Icon className="w-4 h-4 shrink-0" strokeWidth={1.5} />
+                  <span className="flex-1 text-left">{item.label}</span>
+                  {item.badge !== undefined && (
+                    <span className="bg-[#B4502F] text-white text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto">
+                      {item.badge}
+                    </span>
+                  )}
                 </NavLink>
               );
             })}

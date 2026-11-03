@@ -2405,7 +2405,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 required
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Crafted with premier precision, Pakistani breathable weaving..."
+                placeholder="Crafted with quality care, Pakistani breathable weaving..."
                 className="w-full px-3.5 py-2 border rounded-xl"
               />
             </div>

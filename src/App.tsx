@@ -23,7 +23,7 @@ import { OrderSuccessPage } from './pages/OrderSuccessPage';
 import { TrackOrderPage } from './pages/TrackOrderPage';
 import { AccountPage } from './pages/AccountPage';
 import { AuthPage } from './pages/AuthPage';
-import { AboutPage, ContactPage } from './pages/StaticPages';
+import { AboutPage, ContactPage, PrivacyPage, DeliveryAndPaymentPage } from './pages/StaticPages';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { AdminLoginPage } from './pages/AdminLoginPage';
 import { NotFoundPage } from './pages/NotFoundPage';
@@ -88,6 +88,8 @@ export default function App() {
                   {/* Static Brand Pages */}
                   <Route path="about" element={<AboutPage />} />
                   <Route path="contact" element={<ContactPage />} />
+                  <Route path="privacy" element={<PrivacyPage />} />
+                  <Route path="delivery-and-payment" element={<DeliveryAndPaymentPage />} />
 
                   {/* Customer Protected Pages */}
                   <Route
