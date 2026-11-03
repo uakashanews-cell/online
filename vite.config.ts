@@ -67,6 +67,10 @@ function seoBuildPlugin(env: Record<string, string>): Plugin {
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
+  if (!env.VITE_SITE_URL && !process.env.VITE_SITE_URL) {
+    process.env.VITE_SITE_URL = 'https://barvaka.pk';
+    env.VITE_SITE_URL = 'https://barvaka.pk';
+  }
 
   return {
     plugins: [react(), tailwindcss(), seoBuildPlugin(env)],
