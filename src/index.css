@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-bg: #F3E9DC;
+  --color-brand-card: #FBF5EC;
+  --color-brand-text: #3B2A20;
+  --color-brand-muted: #6B5B50;
+  --color-brand-primary: #B4502F;
+  --color-brand-primary-hover: #9C4325;
+  --color-brand-terracotta: #C65D3B;
+  --color-brand-sage: #8A9A7B;
+  --color-brand-light-sage: #DDE3D3;
+  --color-brand-border: #E3D5C4;
+  --color-brand-footer: #3B2A20;
+
+  --color-success: #2E7D4F;
+  --color-warning: #C98A12;
+  --color-danger: #B3372F;
+
+  --font-serif: "Fraunces", Georgia, serif;
+  --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  --shadow-warm-xs: 0 1px 3px rgba(59, 42, 32, 0.05);
+  --shadow-warm-sm: 0 4px 14px rgba(59, 42, 32, 0.06);
+  --shadow-warm-md: 0 8px 24px rgba(59, 42, 32, 0.08);
+  --shadow-warm-lg: 0 16px 36px rgba(59, 42, 32, 0.12);
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background-color: #F3E9DC;
+  color: #3B2A20;
+  font-family: var(--font-sans);
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, .font-serif {
+  font-family: var(--font-serif);
+}
+
+/* Custom warm subtle scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F3E9DC;
+}
+::-webkit-scrollbar-thumb {
+  background: #E3D5C4;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8A9A7B;
+}
+
+/* Warm Boutique button utilities */
+.btn-primary {
+  background-color: #B4502F;
+  color: #FFFFFF;
+  border-radius: 9999px;
+  min-height: 44px;
+  min-width: 44px;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+}
+.btn-primary:hover {
+  background-color: #9C4325;
+}
+
+.btn-secondary {
+  border: 1.5px solid #3B2A20;
+  color: #3B2A20;
+  background-color: transparent;
+  border-radius: 9999px;
+  min-height: 44px;
+  min-width: 44px;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+}
+.btn-secondary:hover {
+  background-color: rgba(59, 42, 32, 0.06);
+}
+
+/* Warm Boutique focus ring */
+.focus-brand-ring:focus-visible,
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #B4502F !important;
+  outline-offset: 2px !important;
+}
