@@ -44,11 +44,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     : 0;
 
   // Calculate total stock across active variants
-  const totalStock = product.variants
-    .filter((v) => v.is_active)
-    .reduce((sum, v) => sum + v.stock_quantity, 0);
-
-  const isOutOfStock = totalStock === 0;
+  const activeVariants = product.variants ? product.variants.filter((v) => v.is_active) : [];
+  const totalStock = activeVariants.reduce((sum, v) => sum + (v.stock_quantity || 0), 0);
+  const isOutOfStock = activeVariants.length === 0 || totalStock === 0;
 
   const handleWishlistClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -145,13 +143,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </h3>
 
           <div className="mt-1 flex items-center gap-2 text-xs text-[#6B5B50]">
-            <span>
-              {product.variants.length > 1
-                ? `${product.variants.length} options`
-                : 'Standard'}
-            </span>
-            {totalStock > 0 && totalStock <= 5 && (
-              <span className="text-[#C98A12] font-medium">· Only {totalStock} left</span>
+            {product.variants && product.variants.length > 1 && (
+              <span>{product.variants.length} options ·</span>
+            )}
+            {isOutOfStock ? (
+              <span className="text-[#B3372F] font-semibold">Out of stock</span>
+            ) : totalStock <= 5 ? (
+              <span className="text-[#C98A12] font-semibold">Only {totalStock} left</span>
+            ) : (
+              <span className="text-[#2E7D4F] font-semibold">In stock</span>
             )}
           </div>
         </div>

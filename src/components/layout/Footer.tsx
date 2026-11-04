@@ -35,13 +35,19 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentTab }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-[#6B5B50]/30">
           {/* Brand Info with Logo Component */}
           <div className="space-y-4">
-            <Logo variant="light" size="md" showTagline={true} />
+            <div className="bg-[#FBF5EC] p-2 rounded-xl inline-block max-w-[200px]">
+              <img
+                src="/logo-full.png"
+                alt="Arooj"
+                className="h-10 sm:h-12 w-auto object-contain"
+              />
+            </div>
             <p className="text-xs text-[#F3E9DC]/80 leading-relaxed pt-1">
-              BARVAKA is an online store in Pakistan offering stitched apparel, accessories, and lifestyle essentials with 100% Cash on Delivery and Free Delivery nationwide.
+              Arooj is an online store in Pakistan offering stitched apparel, accessories, and lifestyle essentials with 100% Cash on Delivery and Free Delivery nationwide.
             </p>
             <div className="pt-2">
               <a
-                href={buildWhatsAppUrl('Hello BARVAKA, I would like to inquire about your products.')}
+                href={buildWhatsAppUrl('Hello Arooj, I would like to inquire about your products.')}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#8A9A7B]/20 hover:bg-[#8A9A7B]/30 text-[#F3E9DC] border border-[#8A9A7B]/40 text-xs font-semibold shadow-xs transition-colors min-h-[44px]"
@@ -103,7 +109,7 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentTab }) => {
                   onClick={() => setCurrentTab('about')}
                   className="hover:text-[#DDE3D3] transition-colors text-left cursor-pointer"
                 >
-                  About BARVAKA
+                  About Arooj
                 </button>
               </li>
               <li>
@@ -228,7 +234,7 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentTab }) => {
 
         {/* Bottom Bar */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-[#F3E9DC]/60 gap-4">
-          <p>© {new Date().getFullYear()} {siteConfig.name}. Quality · Fast Delivery · Trust · Khayr.</p>
+          <p>© {new Date().getFullYear()} {siteConfig.name}. Shop smart · Live better.</p>
           <div className="flex items-center gap-4">
             <Link
               to={isAdmin ? '/admin' : '/admin/login'}

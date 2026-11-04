@@ -23,7 +23,7 @@ interface LockoutState {
 }
 
 export const AdminLoginPage: React.FC = () => {
-  usePageSEO({ title: 'Admin Login | BARVAKA', noindex: true });
+  usePageSEO({ title: 'Admin Login | Arooj', noindex: true });
   const { signInAdmin, isAdmin, loading: authLoading } = useAuth();
   const { showToast } = useStore();
   const navigate = useNavigate();
@@ -157,7 +157,11 @@ export const AdminLoginPage: React.FC = () => {
         <div className="bg-[#FBF5EC] py-8 px-6 sm:px-10 rounded-[24px] border border-[#E3D5C4] shadow-md space-y-6">
           {/* Logo & Header */}
           <div className="text-center space-y-3 flex flex-col items-center">
-            <Logo variant="dark" size="md" showTagline={false} />
+            <img
+              src="/logo-full.png"
+              alt="Arooj"
+              className="h-16 w-auto object-contain rounded-xl select-none"
+            />
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#8A9A7B]/15 border border-[#8A9A7B]/40 text-[10px] font-bold text-[#3B2A20] uppercase tracking-wider">
               <ShieldAlert className="w-3.5 h-3.5 text-[#B4502F]" strokeWidth={1.5} />
               Store Owner Portal · Authorized Access Only
@@ -166,7 +170,7 @@ export const AdminLoginPage: React.FC = () => {
               Admin Sign In
             </h1>
             <p className="text-xs text-[#6B5B50] max-w-xs leading-relaxed">
-              Authenticate with your verified administrator credentials to access the BARVAKA store control center.
+              Authenticate with your verified administrator credentials to access the Arooj store control center.
             </p>
           </div>
 

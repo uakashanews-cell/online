@@ -25,10 +25,10 @@ import {
 } from './ecommerce-logic';
 import { Coupon, CartItem, ProductVariant, Order, ProductReview } from '../types';
 
-test('generateOrderNumber generates expected format BRV-YYMMDD-XXXX', () => {
+test('generateOrderNumber generates expected format ARJ-YYMMDD-XXXX', () => {
   const fixedDate = new Date('2026-10-29T12:00:00Z');
   const orderNum = generateOrderNumber(fixedDate);
-  assert.match(orderNum, /^BRV-261029-[A-Z0-9]{4}$/);
+  assert.match(orderNum, /^ARJ-261029-[A-Z0-9]{4}$/);
 
   // Uniqueness check: two consecutive numbers should differ
   const orderNum2 = generateOrderNumber(fixedDate);
@@ -648,14 +648,14 @@ test('security (c): wrong password and wrong email are rejected by signInAdmin',
 test('generateVariantSku creates unique SKUs with product prefix and random suffix, never reusing default SKU', () => {
   const skuFromCamel = generateVariantSku('camel-wool-shawl');
   assert.match(skuFromCamel, /^CAM-[A-Z0-9]{4}$/);
-  assert.notEqual(skuFromCamel, 'BRV-SKU-01');
+  assert.notEqual(skuFromCamel, 'ARJ-SKU-01');
 
   const skuFromKurta = generateVariantSku('kurta-royal-cotton');
   assert.match(skuFromKurta, /^KUR-[A-Z0-9]{4}$/);
-  assert.notEqual(skuFromKurta, 'BRV-SKU-01');
+  assert.notEqual(skuFromKurta, 'ARJ-SKU-01');
 
   const skuEmpty = generateVariantSku('');
-  assert.match(skuEmpty, /^BRV-[A-Z0-9]{4}$/);
+  assert.match(skuEmpty, /^ARJ-[A-Z0-9]{4}$/);
 
   // Generate 20 SKUs and verify all 20 are unique
   const set = new Set<string>();

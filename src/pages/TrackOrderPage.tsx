@@ -32,7 +32,7 @@ export const TrackOrderPage: React.FC<TrackOrderPageProps> = ({
   initialOrderNumber,
   initialPhone,
 }) => {
-  usePageSEO({ title: 'Track Order | BARVAKA' });
+  usePageSEO({ title: 'Track Order | Arooj' });
   const [searchParams] = useSearchParams();
   const queryOrderNum = searchParams.get('orderNumber') || '';
   const queryPhone = searchParams.get('phone') || '';

@@ -7,8 +7,8 @@ import { CartItem, Coupon, OrderStatus, ProductVariant, UserRole, CheckoutFormDa
 
 
 /**
- * Generates unique order number in format: BRV-YYMMDD-XXXX
- * e.g. BRV-261029-K8N2
+ * Generates unique order number in format: ARJ-YYMMDD-XXXX
+ * e.g. ARJ-261029-K8N2
  */
 export function generateOrderNumber(date: Date = new Date()): string {
   const yy = String(date.getFullYear()).slice(-2);
@@ -22,7 +22,7 @@ export function generateOrderNumber(date: Date = new Date()): string {
     randomSuffix += chars[randomIndex];
   }
 
-  return `BRV-${yy}${mm}${dd}-${randomSuffix}`;
+  return `ARJ-${yy}${mm}${dd}-${randomSuffix}`;
 }
 
 /**
@@ -132,7 +132,7 @@ export function calculateCartTotals(items: CartItem[], coupon?: Coupon | null, n
     }
   }
 
-  const deliveryFee = 0; // Always Free Delivery for BARVAKA in v1
+  const deliveryFee = 0; // Always Free Delivery for Arooj in v1
   const total = Math.max(0, subtotal - discount + deliveryFee);
 
   return {
@@ -371,7 +371,7 @@ export function validateReviewInput(
  * Auto-generates a unique SKU for a variant:
  * e.g. First 3 alphanumeric letters of product slug/name uppercased + "-" + 4-character random suffix
  * Example: "CAM-7F3K"
- * Never uses a static default like "BRV-SKU-01".
+ * Never uses a static default like "ARJ-SKU-01".
  */
 export function generateVariantSku(slugOrName?: string): string {
   const lettersOnly = (slugOrName || '')
@@ -379,7 +379,7 @@ export function generateVariantSku(slugOrName?: string): string {
     .toUpperCase();
   const prefix = lettersOnly.length >= 3 
     ? lettersOnly.slice(0, 3) 
-    : (lettersOnly + 'BRV').slice(0, 3);
+    : (lettersOnly + 'ARJ').slice(0, 3);
 
   const charset = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
   let suffix = '';
@@ -452,5 +452,32 @@ export function getDuplicateSkuErrorMessage(error: any): string | null {
     return 'This SKU is already used by another product. Please change it.';
   }
   return null;
+}
+
+/**
+ * Returns exact stock status for storefront & admin:
+ * - "Out of stock" when every active variant has 0 stock or product has no variants
+ * - "Only {N} left" when stock is 5 or fewer
+ * - "In stock" when stock > 5
+ */
+export function getProductStockStatus(
+  variants?: Array<{ stock_quantity: number; is_active?: boolean }> | null
+): {
+  status: 'out-of-stock' | 'low-stock' | 'in-stock';
+  totalStock: number;
+  label: string;
+} {
+  const activeVariants = (variants || []).filter((v) => v.is_active ?? true);
+  if (activeVariants.length === 0) {
+    return { status: 'out-of-stock', totalStock: 0, label: 'Out of stock' };
+  }
+  const totalStock = activeVariants.reduce((sum, v) => sum + (v.stock_quantity || 0), 0);
+  if (totalStock === 0) {
+    return { status: 'out-of-stock', totalStock: 0, label: 'Out of stock' };
+  }
+  if (totalStock <= 5) {
+    return { status: 'low-stock', totalStock, label: `Only ${totalStock} left` };
+  }
+  return { status: 'in-stock', totalStock, label: 'In stock' };
 }
 

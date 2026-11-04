@@ -159,9 +159,13 @@ export const StoreLayout: React.FC = () => {
               {mobileMenuOpen ? <X className="w-6 h-6" strokeWidth={1.5} /> : <Menu className="w-6 h-6" strokeWidth={1.5} />}
             </button>
 
-            {/* Brand Logo Component */}
-            <Link to="/" className="group flex items-center focus:outline-hidden">
-              <Logo variant="dark" size="md" showTagline={true} />
+            {/* Brand Logo */}
+            <Link to="/" className="group flex items-center focus:outline-hidden" aria-label="Arooj">
+              <img
+                src="/logo.png"
+                alt="Arooj"
+                className="h-8 sm:h-10 w-auto object-contain select-none"
+              />
             </Link>
 
             {/* Desktop Search Bar */}

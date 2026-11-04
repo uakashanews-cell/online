@@ -26,8 +26,8 @@ export function isPlaceholderEmail(email?: string | null): boolean {
 }
 
 export const siteConfig = {
-  name: "BARVAKA",
-  tagline: "Quality · Fast Delivery · Trust · Khayr",
+  name: "Arooj",
+  tagline: "Shop smart · Live better",
   subtitle: "Multi-category online store",
   currency: "PKR",
   currencySymbol: "Rs.",

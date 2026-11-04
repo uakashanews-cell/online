@@ -74,12 +74,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         <div className="p-6 bg-[#3B2A20] text-[#F3E9DC] flex items-center justify-between border-b border-[#3B2A20]/80">
           <div>
             <h3 className="font-serif text-xl font-bold">
-              {mode === 'login' && 'Sign in to BARVAKA'}
+              {mode === 'login' && 'Sign in to Arooj'}
               {mode === 'register' && 'Create Customer Account'}
               {mode === 'forgot' && 'Reset Password'}
             </h3>
             <p className="text-xs text-[#F3E9DC]/80 mt-0.5">
-              Quality · Fast Delivery · Trust · Khayr
+              Shop smart · Live better
             </p>
           </div>
           <button

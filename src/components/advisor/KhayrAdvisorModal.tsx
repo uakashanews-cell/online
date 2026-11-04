@@ -40,7 +40,7 @@ export const KhayrAdvisorModal: React.FC = () => {
     {
       id: 'welcome',
       sender: 'assistant',
-      text: 'Assalam-o-Alaikum! Welcome to BARVAKA. I am your store assistant. You can ask me about product prices, sizing, stock availability, or delivery.',
+      text: 'Assalam-o-Alaikum! Welcome to Arooj. I am your store assistant. You can ask me about product prices, sizing, stock availability, or delivery.',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -133,7 +133,7 @@ export const KhayrAdvisorModal: React.FC = () => {
           text: `For immediate personal assistance, please message our team on WhatsApp at ${siteConfig.support.whatsappDisplay}!`,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           showWhatsAppButton: true,
-          whatsAppPrompt: `Hello BARVAKA, I have an inquiry about your store.`,
+          whatsAppPrompt: `Hello AROOJ, I have an inquiry about your store.`,
         };
         setMessages((prev) => [...prev, fallbackMsg]);
         setIsTyping(false);
@@ -170,7 +170,7 @@ export const KhayrAdvisorModal: React.FC = () => {
             </div>
             <div>
               <h3 id="assistant-modal-title" className="font-serif font-bold text-base text-[#F3E9DC]">
-                BARVAKA assistant
+                AROOJ assistant
               </h3>
               <p className="text-[11px] text-[#F3E9DC]/80">
                 Instant answers from our store catalog &amp; delivery desk
@@ -317,7 +317,7 @@ export const KhayrAdvisorModal: React.FC = () => {
                   {m.showWhatsAppButton && (
                     <div>
                       <a
-                        href={buildWhatsAppUrl(m.whatsAppPrompt || 'Hello BARVAKA, I need help.')}
+                        href={buildWhatsAppUrl(m.whatsAppPrompt || 'Hello AROOJ, I need help.')}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-4 py-2 min-h-[44px] rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold text-xs shadow-xs transition-colors cursor-pointer"
@@ -344,7 +344,7 @@ export const KhayrAdvisorModal: React.FC = () => {
                   <span className="w-1.5 h-1.5 rounded-full bg-[#B4502F] animate-bounce [animation-delay:0.2s]" />
                   <span className="w-1.5 h-1.5 rounded-full bg-[#B4502F] animate-bounce [animation-delay:0.4s]" />
                 </span>
-                <span>BARVAKA assistant is typing...</span>
+                <span>AROOJ assistant is typing...</span>
               </div>
             </div>
           )}

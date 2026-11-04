@@ -41,7 +41,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   onNavigateTab,
   onOrderSuccess,
 }) => {
-  usePageSEO({ title: 'Checkout | BARVAKA', noindex: true });
+  usePageSEO({ title: 'Checkout | Arooj', noindex: true });
   const navigate = useNavigate();
   const { cart, products, cartTotals, placeOrder, currentUser, showToast } = useStore();
 

@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 
 export const AdminLayout: React.FC = () => {
-  usePageSEO({ title: 'Admin Panel | BARVAKA', noindex: true });
+  usePageSEO({ title: 'Admin Panel | Arooj', noindex: true });
   const { profile, signOut, isDemoMode } = useAuth();
   const { logout, showToast, refreshAdminData, isAdminDataLoading, orders } = useStore();
   const navigate = useNavigate();
@@ -48,7 +48,7 @@ export const AdminLayout: React.FC = () => {
 
   // Prefix browser tab title with "(N) New orders" while N > 0
   React.useEffect(() => {
-    const baseTitle = 'Admin Panel | BARVAKA';
+    const baseTitle = 'Admin Panel | Arooj';
     if (pendingOrdersCount > 0) {
       document.title = `(${pendingOrdersCount}) New orders · ${baseTitle}`;
     } else {
@@ -136,8 +136,8 @@ export const AdminLayout: React.FC = () => {
             {mobileMenuOpen ? <X className="w-5 h-5" strokeWidth={1.5} /> : <Menu className="w-5 h-5" strokeWidth={1.5} />}
           </button>
 
-          <Link to="/admin" className="flex items-center gap-2.5">
-            <Logo variant="light" size="sm" />
+          <Link to="/admin" className="flex items-center gap-2.5" aria-label="Arooj Admin">
+            <img src="/logo.png" alt="Arooj" className="h-8 w-auto object-contain select-none" />
             <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#B4502F]/30 text-[#F3E9DC] border border-[#B4502F]/50 hidden sm:inline-block">
               Store Owner Portal
             </span>

@@ -106,7 +106,7 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
-  order_number: string; // e.g. "BRV-261029-A7K2"
+  order_number: string; // e.g. "ARJ-261029-A7K2"
   user_id: string | null;
   customer_name: string;
   customer_phone: string;

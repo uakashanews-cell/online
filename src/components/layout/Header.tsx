@@ -103,15 +103,20 @@ export const Header: React.FC<HeaderProps> = ({
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
 
-          {/* Brand Logo: Fraunces wordmark on the left */}
+          {/* Brand Logo */}
           <button
             onClick={() => {
               setCurrentTab('home');
               setMobileMenuOpen(false);
             }}
-            className="flex items-center text-left group focus:outline-hidden"
+            className="flex items-center text-left group focus:outline-hidden cursor-pointer"
+            aria-label="Arooj"
           >
-            <Logo variant="dark" size="md" showTagline={false} />
+            <img
+              src="/logo.png"
+              alt="Arooj"
+              className="h-8 sm:h-10 w-auto object-contain select-none"
+            />
           </button>
 
           {/* Centered Nav Links (Desktop) */}

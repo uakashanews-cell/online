@@ -77,7 +77,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   }, [products, targetIdentifier]);
 
   usePageSEO({
-    title: product ? `${product.name} | BARVAKA` : 'Product | BARVAKA',
+    title: product ? `${product.name} | Arooj` : 'Product | Arooj',
     description: product?.description ? product.description.slice(0, 150) : undefined,
   });
 
@@ -211,7 +211,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     : 0;
 
   const currentStock = selectedVariant ? selectedVariant.stock_quantity : 0;
-  const isOutOfStock = currentStock <= 0;
+  const isOutOfStock = activeVariants.length === 0 || currentStock <= 0;
 
   // Handle Add To Cart
   const handleAddToCart = () => {
@@ -439,7 +439,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   <span>·</span>
                 </>
               )}
-              <span>SKU: {selectedVariant?.sku || 'BRV-STD'}</span>
+              <span>SKU: {selectedVariant?.sku || 'ARJ-STD'}</span>
               <span>·</span>
               <span className="text-[#3B2A20] font-medium">100% Genuine Guarantee</span>
             </div>
@@ -547,15 +547,15 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
           <div className="flex items-center gap-2 text-xs">
             {isOutOfStock ? (
               <span className="font-semibold text-[#B3372F] bg-[#B3372F]/10 px-3 py-1 rounded-full border border-[#B3372F]/20">
-                Out of Stock
+                Out of stock
               </span>
             ) : currentStock <= 5 ? (
               <span className="font-semibold text-[#C98A12] bg-[#FBF5EC] px-3 py-1 rounded-full border border-[#C98A12]/40">
-                Only {currentStock} units remaining
+                Only {currentStock} left
               </span>
             ) : (
               <span className="font-semibold text-[#2E7D4F] bg-[#DDE3D3] px-3 py-1 rounded-full border border-[#8A9A7B]/40 flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5" strokeWidth={2} /> In Stock &amp; Ready to Dispatch
+                <Check className="w-3.5 h-3.5" strokeWidth={2} /> In stock
               </span>
             )}
           </div>

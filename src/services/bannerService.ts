@@ -11,7 +11,7 @@ let localBanner: HomeBanner = {
   id: 1,
   is_active: true,
   label: 'New',
-  headline: 'Welcome to BARVAKA',
+  headline: 'Welcome to Arooj',
   subtext: 'Free delivery on all orders. Pay on arrival.',
   button_text: 'Shop now',
   button_link: '/shop',

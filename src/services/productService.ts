@@ -316,17 +316,22 @@ export const productService = {
         image_url: url,
         sort_order: idx,
       }));
-      await supabase.from('product_images').insert(imageRows);
+      const { error: imgError } = await supabase.from('product_images').insert(imageRows);
+      if (imgError) {
+        await supabase.from('product_images').delete().eq('product_id', createdProduct.id);
+        await supabase.from('products').delete().eq('id', createdProduct.id);
+        throw imgError;
+      }
     }
 
     if (formattedVariants && formattedVariants.length > 0) {
       const variantsWithProductId = formattedVariants.map((v) => ({
         product_id: createdProduct.id,
-        sku: v.sku, // null if empty
+        sku: v.sku || null, // null if empty
         size: v.size || null,
         color: v.color || null,
         color_hex: v.color_hex || null,
-        price: v.price, // null if empty
+        price: v.price !== null && v.price !== undefined ? v.price : null,
         stock_quantity: v.stock_quantity ?? 0,
         is_active: v.is_active ?? true,
       }));
@@ -334,7 +339,8 @@ export const productService = {
         .from('product_variants')
         .insert(variantsWithProductId);
       if (variantError) {
-        // Roll back the newly created product so we do not leave an orphaned product with 0 variants
+        // Roll back the newly created product and images so we do not leave an orphaned product with 0 variants
+        await supabase.from('product_images').delete().eq('product_id', createdProduct.id);
         await supabase.from('products').delete().eq('id', createdProduct.id);
         const duplicateMsg = getDuplicateSkuErrorMessage(variantError);
         if (duplicateMsg) throw new Error(duplicateMsg);
@@ -412,35 +418,38 @@ export const productService = {
     }
 
     if (images !== undefined) {
-      await supabase.from('product_images').delete().eq('product_id', id);
+      const { error: delImgErr } = await supabase.from('product_images').delete().eq('product_id', id);
+      if (delImgErr) throw delImgErr;
       if (images.length > 0) {
         const imageRows = images.map((url, idx) => ({
           product_id: id,
           image_url: url,
           sort_order: idx,
         }));
-        await supabase.from('product_images').insert(imageRows);
+        const { error: insImgErr } = await supabase.from('product_images').insert(imageRows);
+        if (insImgErr) throw insImgErr;
       }
     }
 
     if (formattedVariants !== undefined) {
+      // Fetch existing variants to safely restore if variant insertion fails
+      const { data: existingVariants, error: fetchVarErr } = await supabase
+        .from('product_variants')
+        .select('*')
+        .eq('product_id', id);
+      if (fetchVarErr) throw fetchVarErr;
+
+      const { error: deleteError } = await supabase.from('product_variants').delete().eq('product_id', id);
+      if (deleteError) throw deleteError;
+
       if (formattedVariants.length > 0) {
-        // Fetch existing variants to safely restore if variant insertion fails
-        const { data: existingVariants } = await supabase
-          .from('product_variants')
-          .select('*')
-          .eq('product_id', id);
-
-        const { error: deleteError } = await supabase.from('product_variants').delete().eq('product_id', id);
-        if (deleteError) throw deleteError;
-
         const variantsWithProductId = formattedVariants.map((v) => ({
           product_id: id,
-          sku: v.sku, // null if empty
+          sku: v.sku || null, // null if empty
           size: v.size || null,
           color: v.color || null,
           color_hex: v.color_hex || null,
-          price: v.price, // null if empty
+          price: v.price !== null && v.price !== undefined ? v.price : null,
           stock_quantity: v.stock_quantity ?? 0,
           is_active: v.is_active ?? true,
         }));
@@ -458,8 +467,6 @@ export const productService = {
           if (duplicateMsg) throw new Error(duplicateMsg);
           throw variantError;
         }
-      } else {
-        await supabase.from('product_variants').delete().eq('product_id', id);
       }
     }
 

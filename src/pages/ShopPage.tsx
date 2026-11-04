@@ -35,7 +35,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({
   }, [selectedCategory, activeCategories]);
 
   usePageSEO({
-    title: matchedCat ? `${matchedCat.name} | BARVAKA` : 'Shop | BARVAKA',
+    title: matchedCat ? `${matchedCat.name} | Arooj` : 'Shop | Arooj',
   });
 
   useEffect(() => {

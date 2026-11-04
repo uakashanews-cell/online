@@ -291,7 +291,7 @@ export const AdminBannerEditor: React.FC<AdminBannerEditorProps> = ({
                   Show banner
                 </label>
                 <span className="text-[11px] text-[#6B5B50]">
-                  When disabled or expired, the storefront displays the neutral BARVAKA card.
+                  When disabled or expired, the storefront displays the neutral Arooj card.
                 </span>
               </div>
               <label className="relative inline-flex items-center cursor-pointer min-h-[44px]">

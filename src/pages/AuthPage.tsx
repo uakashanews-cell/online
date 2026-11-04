@@ -120,7 +120,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode }) => {
         <div className="text-center space-y-2 flex flex-col items-center">
           <Logo size="sm" showTagline={false} />
           <h2 className="font-serif text-2xl font-bold text-[#3B2A20] pt-2">
-            {mode === 'login' && 'Sign in to BARVAKA'}
+            {mode === 'login' && 'Sign in to Arooj'}
             {mode === 'register' && 'Create your Account'}
             {mode === 'forgot' && 'Reset your Password'}
           </h2>

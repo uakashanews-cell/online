@@ -40,7 +40,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
   onSelectProduct,
   onTrackOrder,
 }) => {
-  usePageSEO({ title: 'My Account | BARVAKA', noindex: true });
+  usePageSEO({ title: 'My Account | Arooj', noindex: true });
   const navigate = useNavigate();
   const location = useLocation();
   const { orderNumber } = useParams<{ orderNumber: string }>();
@@ -301,7 +301,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                     ) : (
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {[
-                          { key: 'pending', title: '1. Order Placed', desc: 'Received at BARVAKA' },
+                          { key: 'pending', title: '1. Order Placed', desc: 'Received at Arooj' },
                           { key: 'confirmed', title: '2. Confirmed & Packed', desc: 'Quality verified at hub' },
                           { key: 'shipped', title: '3. Handed to Courier', desc: 'In transit with rider' },
                           { key: 'delivered', title: '4. Delivered', desc: 'Doorstep COD collected' },

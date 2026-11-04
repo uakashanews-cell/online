@@ -39,10 +39,10 @@ test('normalizePkPhone converts Pakistani phone formats to 923XXXXXXXXX', () => 
 });
 
 test('buildWhatsAppUrl constructs valid wa.me URLs', () => {
-  const url = buildWhatsAppUrl('Hello BARVAKA, test message');
+  const url = buildWhatsAppUrl('Hello AROOJ, test message');
   assert.equal(
     url,
-    'https://wa.me/923027651284?text=Hello%20BARVAKA%2C%20test%20message'
+    'https://wa.me/923027651284?text=Hello%20AROOJ%2C%20test%20message'
   );
 
   const customUrl = buildWhatsAppUrl('Status update', '03001234567');
@@ -53,10 +53,10 @@ test('buildWhatsAppUrl constructs valid wa.me URLs', () => {
 });
 
 test('toAbsoluteUrl turns relative paths into full https URLs', () => {
-  const origin = 'https://barvaka.pk';
+  const origin = 'https://aroojonline.pk';
   assert.equal(toAbsoluteUrl('https://example.com/img.jpg', origin), 'https://example.com/img.jpg');
-  assert.equal(toAbsoluteUrl('/images/products/kurta.jpg', origin), 'https://barvaka.pk/images/products/kurta.jpg');
-  assert.equal(toAbsoluteUrl('images/products/kurta.jpg', origin), 'https://barvaka.pk/images/products/kurta.jpg');
+  assert.equal(toAbsoluteUrl('/images/products/kurta.jpg', origin), 'https://aroojonline.pk/images/products/kurta.jpg');
+  assert.equal(toAbsoluteUrl('images/products/kurta.jpg', origin), 'https://aroojonline.pk/images/products/kurta.jpg');
 });
 
 test('formatProductMessage matches exact required WhatsApp order specification', () => {
@@ -73,17 +73,17 @@ test('formatProductMessage matches exact required WhatsApp order specification',
       price: 3499,
     },
     quantity: 2,
-    origin: 'https://barvaka.pk',
+    origin: 'https://aroojonline.pk',
   });
 
-  assert.ok(message.includes('Hello BARVAKA, I want to order this product:'));
+  assert.ok(message.includes('Hello Arooj, I want to order this product:'));
   assert.ok(message.includes('*Royal Embroidered Cotton Kurta*'));
   assert.ok(message.includes('Variant: Medium / Emerald Green'));
   assert.ok(message.includes('Quantity: 2'));
   assert.ok(message.includes('Price: Rs. 3,499 each'));
   assert.ok(message.includes('Total: Rs. 6,998 (Free Delivery, Cash on Delivery)'));
   assert.ok(message.includes('Product image: https://images.unsplash.com/photo-kurta.jpg'));
-  assert.ok(message.includes('Product link: https://barvaka.pk/product/royal-embroidered-cotton-kurta'));
+  assert.ok(message.includes('Product link: https://aroojonline.pk/product/royal-embroidered-cotton-kurta'));
 });
 
 test('formatCartMessage formats cart items and preview thumbnail URL', () => {
@@ -101,9 +101,10 @@ test('formatCartMessage formats cart items and preview thumbnail URL', () => {
     discount: 500,
     total: 4499,
     couponCode: 'WELCOME10',
-    origin: 'https://barvaka.pk',
+    origin: 'https://aroojonline.pk',
   });
 
+  assert.ok(message.includes('Hello Arooj, I want to order these items from my cart:'));
   assert.ok(message.includes('Preview: https://images.unsplash.com/photo-attar.jpg'));
   assert.ok(message.includes('*Pure Dehn Al Oudh Attar*'));
   assert.ok(message.includes('Subtotal: Rs. 4,999'));
@@ -117,7 +118,7 @@ test('formatOrderMessage creates complete order notification with items and trac
   const message = formatOrderMessage({
     order: {
       id: 'ord-123',
-      order_number: 'BRV-261029-A7K2',
+      order_number: 'ARJ-261029-A7K2',
       user_id: null,
       customer_name: 'Hassan Ali',
       customer_phone: '03001234567',
@@ -152,10 +153,10 @@ test('formatOrderMessage creates complete order notification with items and trac
         },
       ],
     },
-    origin: 'https://barvaka.pk',
+    origin: 'https://aroojonline.pk',
   });
 
-  assert.ok(message.includes('*Order #BRV-261029-A7K2*'));
+  assert.ok(message.includes('*Order #ARJ-261029-A7K2*'));
   assert.ok(message.includes('Customer: Hassan Ali'));
   assert.ok(message.includes('Phone: 03001234567'));
   assert.ok(message.includes('Address: House 12, Street 4, F-8/2, Islamabad, Punjab'));
@@ -163,19 +164,19 @@ test('formatOrderMessage creates complete order notification with items and trac
   assert.ok(message.includes('Image: https://images.unsplash.com/photo-shoes.jpg'));
   assert.ok(message.includes('Total: Rs. 5,500'));
   assert.ok(message.includes('Payment: Cash on Delivery'));
-  assert.ok(message.includes('Tracking link: https://barvaka.pk/track-order?orderNumber=BRV-261029-A7K2&phone=03001234567'));
+  assert.ok(message.includes('Tracking link: https://aroojonline.pk/track-order?orderNumber=ARJ-261029-A7K2&phone=03001234567'));
 });
 
 test('formatCustomerUpdateMessage formats admin customer contact message', () => {
   const message = formatCustomerUpdateMessage({
-    order_number: 'BRV-261029-A7K2',
+    order_number: 'ARJ-261029-A7K2',
     status: 'shipped',
     total: 5500,
     customer_name: 'Hassan Ali',
   });
 
   assert.ok(message.includes('Assalam-o-Alaikum Hassan Ali'));
-  assert.ok(message.includes('Order *#BRV-261029-A7K2*'));
+  assert.ok(message.includes('Order *#ARJ-261029-A7K2*'));
   assert.ok(message.includes('Dispatched & On the Way with Courier'));
   assert.ok(message.includes('Rs. 5,500'));
 });

@@ -104,7 +104,7 @@ export const HomeHeroBanner: React.FC<HomeHeroBannerProps> = ({ banner, isPrevie
     );
   }
 
-  // 3. No active banner: neutral default card showing only BARVAKA wordmark and "Free delivery · Pay on arrival"
+  // 3. No active banner: neutral default card showing only Arooj wordmark and "Free delivery · Pay on arrival"
   return (
     <div className="relative w-full aspect-4/5 sm:aspect-square lg:aspect-4/5 rounded-[48px] bg-[#FBF5EC] border border-[#E3D5C4] overflow-hidden shadow-md flex flex-col items-center justify-center p-8 text-center space-y-4">
       <div className="w-16 h-16 rounded-full bg-[#8A9A7B]/20 border border-[#8A9A7B]/40 flex items-center justify-center text-[#3B2A20]">
@@ -112,10 +112,10 @@ export const HomeHeroBanner: React.FC<HomeHeroBannerProps> = ({ banner, isPrevie
       </div>
       <div>
         <span className="font-serif text-3xl sm:text-4xl font-bold text-[#3B2A20] tracking-wider block">
-          BARVAKA
+          Arooj
         </span>
         <p className="text-xs text-[#6B5B50] mt-1 font-medium">
-          Quality · Fast Delivery · Trust · Khayr
+          Shop smart · Live better
         </p>
       </div>
       <span className="px-4 py-2 min-h-[44px] flex items-center rounded-full text-xs font-semibold bg-[#8A9A7B]/20 text-[#3B2A20] border border-[#8A9A7B]/30 shadow-2xs">

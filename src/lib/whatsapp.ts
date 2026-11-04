@@ -25,7 +25,7 @@ export function toAbsoluteUrl(urlOrPath: string, origin?: string): string {
     return urlOrPath;
   }
   const base =
-    origin || (typeof window !== 'undefined' ? window.location.origin : 'https://barvaka.pk');
+    origin || (typeof window !== 'undefined' ? window.location.origin : 'https://aroojonline.pk');
   const cleanBase = base.replace(/\/+$/, '');
   const cleanPath = urlOrPath.startsWith('/') ? urlOrPath : `/${urlOrPath}`;
   return `${cleanBase}${cleanPath}`;
@@ -72,7 +72,7 @@ export function buildWhatsAppUrl(message: string, targetPhone?: string): string 
  * Formats a single product order message for /product/:slug.
  * Exact format requested:
  *
- * Hello BARVAKA, I want to order this product:
+ * Hello Arooj, I want to order this product:
  *
  * *{Product name}*
  * Variant: {Size} / {Color}
@@ -109,11 +109,11 @@ export function formatProductMessage(params: {
   const primaryImage = product.images?.[0] || '';
   const absoluteImage = toAbsoluteUrl(primaryImage, origin);
   const baseOrigin =
-    origin || (typeof window !== 'undefined' ? window.location.origin : 'https://barvaka.pk');
+    origin || (typeof window !== 'undefined' ? window.location.origin : 'https://aroojonline.pk');
   const productLink = `${baseOrigin.replace(/\/+$/, '')}/product/${product.slug}`;
 
   return [
-    'Hello BARVAKA, I want to order this product:',
+    'Hello Arooj, I want to order this product:',
     '',
     `*${product.name}*`,
     `Variant: ${variantText}`,
@@ -150,7 +150,7 @@ export function formatCartMessage(params: {
   const { items, subtotal, discount, total, couponCode, origin } = params;
 
   if (!items || items.length === 0) {
-    return 'Hello BARVAKA, I would like to place an order for items in my cart.';
+    return 'Hello Arooj, I would like to place an order for items in my cart.';
   }
 
   const firstItemImage = toAbsoluteUrl(items[0]?.image_url || '', origin);
@@ -159,7 +159,7 @@ export function formatCartMessage(params: {
   const remainingCount = items.length - maxItemsToShow;
 
   const lines: string[] = [
-    'Hello BARVAKA, I want to order these items from my cart:',
+    'Hello Arooj, I want to order these items from my cart:',
     `Preview: ${firstItemImage}`,
     '',
     '📦 *Order Items:*',
@@ -198,7 +198,7 @@ export function formatCartMessage(params: {
   if (encodeURIComponent(fullMessage).length > maxSafeCharLimit) {
     // Compact items representation if URL is too long
     const compactLines: string[] = [
-      'Hello BARVAKA, I want to order these items from my cart:',
+      'Hello Arooj, I want to order these items from my cart:',
       `Preview: ${firstItemImage}`,
       '',
       '📦 *Order Items:*',
@@ -234,7 +234,7 @@ export function formatCartMessage(params: {
 export function formatOrderMessage(params: { order: Order; origin?: string }): string {
   const { order, origin } = params;
   const baseOrigin =
-    origin || (typeof window !== 'undefined' ? window.location.origin : 'https://barvaka.pk');
+    origin || (typeof window !== 'undefined' ? window.location.origin : 'https://aroojonline.pk');
   const trackingLink = `${baseOrigin.replace(/\/+$/, '')}/track-order?orderNumber=${encodeURIComponent(
     order.order_number
   )}&phone=${encodeURIComponent(order.customer_phone)}`;
@@ -242,7 +242,7 @@ export function formatOrderMessage(params: { order: Order; origin?: string }): s
   const firstItemImage = order.items?.[0] ? toAbsoluteUrl(order.items[0].image_url, origin) : '';
 
   const lines: string[] = [
-    'Hello BARVAKA, I have placed an order on your website:',
+    'Hello Arooj, I have placed an order on your website:',
     `*Order #${order.order_number}*`,
     firstItemImage ? `Preview: ${firstItemImage}` : '',
     '',
@@ -300,7 +300,7 @@ export function formatCustomerUpdateMessage(order: {
 
   return [
     `${greeting},`,
-    `This is BARVAKA regarding your Order *#${order.order_number}*.`,
+    `This is AROOJ regarding your Order *#${order.order_number}*.`,
     '',
     `Current Status: *${readableStatus}*`,
     `Total Amount (COD): *Rs. ${order.total.toLocaleString('en-PK')}*`,

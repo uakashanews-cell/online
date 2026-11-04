@@ -342,6 +342,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     refreshAdminData(true);
   }, [refreshAdminData]);
 
+  // Refetch products on window focus so stock changes appear quickly
+  useEffect(() => {
+    const handleFocus = () => {
+      refreshAdminData(true);
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [refreshAdminData]);
+
   // When admin logs in (isAdmin becomes true), refetch admin data
   useEffect(() => {
     if (!isDemoMode && supabase && isAdmin) {
@@ -922,7 +931,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       try {
         const created = await productService.createProduct(newProdData);
         setProducts((prev) => [created, ...prev]);
-        showToast(`Product "${created.name}" created`, 'success');
+        const totalStock = (created.variants || []).reduce((sum, v) => sum + (v.stock_quantity || 0), 0);
+        showToast(`Saved. ${totalStock} in stock.`, 'success');
+        await refreshAdminData(true);
         return created;
       } catch (err: any) {
         const duplicateMsg = getDuplicateSkuErrorMessage(err);
@@ -931,7 +942,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         throw new Error(finalMsg);
       }
     },
-    [showToast]
+    [showToast, refreshAdminData]
   );
 
   const updateProduct = useCallback(
@@ -939,7 +950,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       try {
         const updated = await productService.updateProduct(id, updates);
         setProducts((prev) => prev.map((p) => (p.id === id ? updated : p)));
-        showToast('Product updated successfully', 'success');
+        const totalStock = (updated.variants || []).reduce((sum, v) => sum + (v.stock_quantity || 0), 0);
+        showToast(`Saved. ${totalStock} in stock.`, 'success');
+        await refreshAdminData(true);
         return updated;
       } catch (err: any) {
         const duplicateMsg = getDuplicateSkuErrorMessage(err);
@@ -948,7 +961,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         throw new Error(finalMsg);
       }
     },
-    [showToast]
+    [showToast, refreshAdminData]
   );
 
   const deleteProduct = useCallback(
@@ -1203,7 +1216,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       setAllUsers((prev) => [...prev, newProfile]);
       setDemoUser(newProfile);
-      showToast(`Account created! Welcome to BARVAKA, ${newProfile.full_name}`, 'success');
+      showToast(`Account created! Welcome to Arooj, ${newProfile.full_name}`, 'success');
       return true;
     },
     [allUsers, showToast]

@@ -16,6 +16,8 @@ export function useProducts(params: GetProductsParams = {}) {
   return useQuery({
     queryKey: ['products', params],
     queryFn: () => productService.getProducts(params),
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -24,6 +26,8 @@ export function useProduct(slug?: string) {
     queryKey: ['product', slug],
     queryFn: () => (slug ? productService.getProductBySlug(slug) : null),
     enabled: Boolean(slug),
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: true,
   });
 }
 

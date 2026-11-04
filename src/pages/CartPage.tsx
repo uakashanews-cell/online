@@ -19,7 +19,7 @@ interface CartPageProps {
 }
 
 export const CartPage: React.FC<CartPageProps> = ({ onNavigateTab, onSelectProduct }) => {
-  usePageSEO({ title: 'Cart | BARVAKA', noindex: true });
+  usePageSEO({ title: 'Cart | Arooj', noindex: true });
   const navigate = useNavigate();
   const {
     products,

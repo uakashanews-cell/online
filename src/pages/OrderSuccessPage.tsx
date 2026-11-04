@@ -34,7 +34,7 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({
   onNavigateTab,
   onTrackOrder,
 }) => {
-  usePageSEO({ title: 'Order Confirmation | BARVAKA', noindex: true });
+  usePageSEO({ title: 'Order Confirmation | Arooj', noindex: true });
   const { orderNumber: paramOrderNumber } = useParams<{ orderNumber: string }>();
   const navigate = useNavigate();
   const { orders } = useStore();
@@ -224,7 +224,7 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({
             onClick={() => handleNavigate('shop')}
             className="text-xs text-[#6B5B50] hover:text-[#B4502F] font-semibold underline cursor-pointer"
           >
-            Continue Shopping at BARVAKA
+            Continue Shopping at Arooj
           </button>
         </div>
       </div>

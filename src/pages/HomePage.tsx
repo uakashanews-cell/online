@@ -27,7 +27,7 @@ export const HomePage: React.FC<HomePageProps> = ({
   onNavigateTab,
   openAuthModal,
 }) => {
-  usePageSEO({ title: 'BARVAKA | Online store in Pakistan' });
+  usePageSEO({ title: 'AROOJ | Online store in Pakistan' });
   const navigate = useNavigate();
   const { activeProducts, activeCategories, applyCouponCode } = useStore();
 

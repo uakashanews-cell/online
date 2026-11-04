@@ -18,7 +18,7 @@ import { ShieldCheck, Truck, Handshake, Sprout, Phone, Mail, MapPin, Clock } fro
 import { usePageSEO } from '../hooks/usePageSEO';
 
 export const AboutPage: React.FC = () => {
-  usePageSEO({ title: 'About | BARVAKA' });
+  usePageSEO({ title: 'About | Arooj' });
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
       <div className="text-center space-y-3">
@@ -34,9 +34,9 @@ export const AboutPage: React.FC = () => {
       </div>
 
       <div className="prose prose-stone mx-auto text-sm text-[#3B2A20] leading-relaxed space-y-6 bg-[#FBF5EC] rounded-[24px] border border-[#E3D5C4] p-8 shadow-xs">
-        <h3 className="font-serif text-xl font-bold text-[#3B2A20]">The Story of BARVAKA</h3>
+        <h3 className="font-serif text-xl font-bold text-[#3B2A20]">The Story of Arooj</h3>
         <p>
-          BARVAKA was created with a clear standard: commerce in Pakistan should honor trust, craftsmanship, and transparency. Derived from our signature monogram emblem with warm artisanal tones, our brand represents dignity, longevity, and Khayr.
+          Arooj was created with a clear standard: commerce in Pakistan should honor trust, craftsmanship, and transparency. Derived from our signature monogram emblem with warm artisanal tones, our brand represents dignity, longevity, and Khayr.
         </p>
         <p>
           Every item in our catalog—from stitched kurtas and fine attars to premium leather accessories and everyday lifestyle items—is inspected with utmost scrutiny in our fulfillment hub in Rahim Yar Khan prior to dispatch.
@@ -86,7 +86,7 @@ export const AboutPage: React.FC = () => {
 };
 
 export const ContactPage: React.FC = () => {
-  usePageSEO({ title: 'Contact | BARVAKA' });
+  usePageSEO({ title: 'Contact | Arooj' });
   const showEmail = !isPlaceholderEmail(siteConfig.support.email);
 
   return (
@@ -96,7 +96,7 @@ export const ContactPage: React.FC = () => {
           Customer Support
         </span>
         <h1 className="font-serif text-3xl font-bold text-[#3B2A20]">
-          Contact BARVAKA
+          Contact Arooj
         </h1>
         <p className="text-xs sm:text-sm text-[#6B5B50] max-w-md mx-auto">
           We are here to assist you with order status, sizing inquiries, product advice, or exchanges.
@@ -119,7 +119,7 @@ export const ContactPage: React.FC = () => {
                 <p className="font-semibold text-[#3B2A20]">WhatsApp Helpline</p>
                 <p className="text-xs text-[#6B5B50] mt-0.5">{siteConfig.support.whatsappDisplay}</p>
                 <a
-                  href={buildWhatsAppUrl('Hello BARVAKA, I am reaching out from your Contact page.')}
+                  href={buildWhatsAppUrl('Hello Arooj, I am reaching out from your Contact page.')}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 mt-2 px-4 py-2 min-h-[44px] rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold text-xs transition-colors shadow-xs"
@@ -194,7 +194,7 @@ export const ContactPage: React.FC = () => {
 };
 
 export const PrivacyPage: React.FC = () => {
-  usePageSEO({ title: 'Privacy Policy | BARVAKA' });
+  usePageSEO({ title: 'Privacy Policy | Arooj' });
   const showEmail = !isPlaceholderEmail(siteConfig.support.email);
 
   return (
@@ -215,7 +215,7 @@ export const PrivacyPage: React.FC = () => {
         <section className="space-y-3">
           <h2 className="font-serif text-xl font-bold text-[#3B2A20]">Information We Collect</h2>
           <p>
-            When you place an order with BARVAKA, we collect the necessary details required to deliver your goods:
+            When you place an order with Arooj, we collect the necessary details required to deliver your goods:
           </p>
           <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-[#6B5B50]">
             <li><strong>Full Name:</strong> To address your parcel correctly.</li>
@@ -258,7 +258,7 @@ export const PrivacyPage: React.FC = () => {
 };
 
 export const DeliveryAndPaymentPage: React.FC = () => {
-  usePageSEO({ title: 'Delivery & Payment | BARVAKA' });
+  usePageSEO({ title: 'Delivery & Payment | Arooj' });
   const hasDeliveryTime = DELIVERY_TIME_TEXT.trim() !== '';
   const hasReturnPolicy = RETURN_POLICY_TEXT.trim() !== '';
 

@@ -223,7 +223,7 @@ export async function processAssistantQuery(
   const greetingWords = ['hi', 'hello', 'salam', 'assalam', 'aoa', 'hey', 'good morning', 'good afternoon', 'good evening'];
   if (greetingWords.some((w) => query === w || query.startsWith(w + ' '))) {
     return {
-      text: `Assalam-o-Alaikum! Welcome to BARVAKA. I can help you with product prices, available sizes & colors, stock status, delivery details, or gifts within your budget. What would you like to explore?`,
+      text: `Assalam-o-Alaikum! Welcome to Arooj. I can help you with product prices, available sizes & colors, stock status, delivery details, or gifts within your budget. What would you like to explore?`,
     };
   }
 
@@ -233,7 +233,7 @@ export async function processAssistantQuery(
     return {
       text: `You're very welcome! If you need anything else or would like to place an order, feel free to ask or reach out on WhatsApp.`,
       showWhatsAppButton: true,
-      whatsAppPrompt: 'Hello BARVAKA, I have an inquiry.',
+      whatsAppPrompt: 'Hello Arooj, I have an inquiry.',
     };
   }
 
@@ -243,7 +243,7 @@ export async function processAssistantQuery(
     return {
       text: `You can chat directly with our team on WhatsApp at ${PHONE_DISPLAY} or call us directly. We are always happy to assist you personally!`,
       showWhatsAppButton: true,
-      whatsAppPrompt: 'Hello BARVAKA, I would like to speak with a customer care representative.',
+      whatsAppPrompt: 'Hello Arooj, I would like to speak with a customer care representative.',
     };
   }
 
@@ -251,7 +251,7 @@ export async function processAssistantQuery(
   const trackWords = ['track', 'tracking', 'my order', 'order status', 'kahan hai mera order', 'order check', 'where is my order', 'parcel'];
   if (trackWords.some((w) => query.includes(w))) {
     return {
-      text: `To check the status of your order, please visit our Track Order page with your Order Number (e.g. BRV-...) and phone number. We do not look up private customer orders in this chat to protect your privacy.`,
+      text: `To check the status of your order, please visit our Track Order page with your Order Number (e.g. ARJ-...) and phone number. We do not look up private customer orders in this chat to protect your privacy.`,
       actionLink: {
         label: 'Open Track Order',
         url: '/track-order',
@@ -263,13 +263,13 @@ export async function processAssistantQuery(
   const orderWords = ['how to order', 'how to buy', 'order kaise', 'order kaisay', 'order place', 'buy kaise', 'khareedna'];
   if (orderWords.some((w) => query.includes(w))) {
     return {
-      text: `Ordering from BARVAKA is simple:\n1. Browse our shop and click on any product.\n2. Choose your size/color and click "Add to Cart" or tap "Order on WhatsApp".\n3. Checkout with 100% Cash on Delivery (COD) and Free Delivery nationwide across Pakistan!`,
+      text: `Ordering from AROOJ is simple:\n1. Browse our shop and click on any product.\n2. Choose your size/color and click "Add to Cart" or tap "Order on WhatsApp".\n3. Checkout with 100% Cash on Delivery (COD) and Free Delivery nationwide across Pakistan!`,
       actionLink: {
         label: 'Browse Catalog',
         url: '/shop',
       },
       showWhatsAppButton: true,
-      whatsAppPrompt: 'Hello BARVAKA, I would like to place an order.',
+      whatsAppPrompt: 'Hello AROOJ, I would like to place an order.',
     };
   }
 
@@ -300,7 +300,7 @@ export async function processAssistantQuery(
       return {
         text: `For delivery time / returns, please message us on WhatsApp. Free delivery on every order and Cash on delivery only.`,
         showWhatsAppButton: true,
-        whatsAppPrompt: 'Hello BARVAKA, I would like to know about delivery time and return policy.',
+        whatsAppPrompt: 'Hello AROOJ, I would like to know about delivery time and return policy.',
       };
     }
   }
@@ -323,13 +323,13 @@ export async function processAssistantQuery(
       lines.push(`Email: ${CONTACT_EMAIL}`);
     }
     return {
-      text: `Here are BARVAKA's official contact details:\n\n${lines.join('\n')}`,
+      text: `Here are AROOJ's official contact details:\n\n${lines.join('\n')}`,
       actionLink: {
         label: 'View Contact Page',
         url: '/contact',
       },
       showWhatsAppButton: true,
-      whatsAppPrompt: 'Hello BARVAKA, I am reaching out for assistance.',
+      whatsAppPrompt: 'Hello AROOJ, I am reaching out for assistance.',
     };
   }
 
@@ -358,7 +358,7 @@ export async function processAssistantQuery(
         return {
           text: `We currently do not have items under Rs. ${maxBudget.toLocaleString()}. Our starting collection begins from ${formatPKR(Math.min(...products.map((p) => p.base_price)))}. You can also check with us on WhatsApp for custom options.`,
           showWhatsAppButton: true,
-          whatsAppPrompt: `Hello BARVAKA, do you have any gifts or items around Rs. ${maxBudget}?`,
+          whatsAppPrompt: `Hello AROOJ, do you have any gifts or items around Rs. ${maxBudget}?`,
         };
       }
     }
@@ -458,7 +458,7 @@ export async function processAssistantQuery(
           text: `"${targetProduct.name}" is currently Out of stock. Please check back soon or message us on WhatsApp for restock updates.`,
           products: [toAssistantProductCard(targetProduct)],
           showWhatsAppButton: true,
-          whatsAppPrompt: `Hello BARVAKA, when will "${targetProduct.name}" be back in stock?`,
+          whatsAppPrompt: `Hello AROOJ, when will "${targetProduct.name}" be back in stock?`,
         };
       }
 
@@ -491,6 +491,6 @@ export async function processAssistantQuery(
   return {
     text: `I could not find exact information regarding your question in our current store catalog. For immediate personal assistance, please message our team on WhatsApp!`,
     showWhatsAppButton: true,
-    whatsAppPrompt: `Hello BARVAKA, I have an inquiry: ${trimmed}`,
+    whatsAppPrompt: `Hello AROOJ, I have an inquiry: ${trimmed}`,
   };
 }

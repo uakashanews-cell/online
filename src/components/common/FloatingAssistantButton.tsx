@@ -29,14 +29,14 @@ export const FloatingAssistantButton: React.FC = () => {
       <button
         type="button"
         onClick={() => setIsAdvisorOpen(!isAdvisorOpen)}
-        aria-label="Open BARVAKA assistant"
+        aria-label="Open Arooj assistant"
         className="group relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 min-h-[44px] min-w-[44px] rounded-full bg-[#B4502F] hover:bg-[#964225] text-white shadow-[0_6px_25px_rgba(180,80,47,0.4)] hover:shadow-[0_8px_30px_rgba(180,80,47,0.55)] transition-all transform hover:scale-105 active:scale-95 focus:outline-hidden focus:ring-4 focus:ring-[#B4502F]/40 cursor-pointer"
       >
         <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white drop-shadow-xs" strokeWidth={1.5} />
 
         {/* Floating Tooltip Pill (Desktop) */}
         <span className="hidden lg:block absolute right-full mr-3 px-3 py-1.5 rounded-[8px] bg-[#3B2A20] text-[#F3E9DC] text-xs font-semibold whitespace-nowrap shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200">
-          Ask BARVAKA assistant
+          Ask Arooj assistant
           <span className="absolute left-full top-1/2 -translate-y-1/2 border-4 border-transparent border-l-[#3B2A20]" />
         </span>
       </button>

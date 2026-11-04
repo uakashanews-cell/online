@@ -359,7 +359,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `BARVAKA_Orders_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `AROOJ_Orders_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -1262,12 +1262,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                         <td className="p-3 text-zinc-600">{cat?.name || 'Uncategorized'}</td>
                         <td className="p-3 font-bold text-zinc-950">{formatPKR(p.base_price)}</td>
                         <td className="p-3">
-                          <div className="space-y-0.5">
-                            <span className="font-bold text-zinc-900">
-                              {totalStock} in stock
+                          {!p.variants || p.variants.length === 0 ? (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                              No stock set - edit this product
                             </span>
-                            <p className="text-[11px] text-zinc-400">{p.variants.length} variant(s)</p>
-                          </div>
+                          ) : totalStock > 0 ? (
+                            <div className="space-y-0.5">
+                              <span className="font-bold text-emerald-600">
+                                {totalStock} in stock
+                              </span>
+                              <p className="text-[11px] text-zinc-400">{p.variants.length} variant(s)</p>
+                            </div>
+                          ) : (
+                            <div className="space-y-0.5">
+                              <span className="font-bold text-red-600">
+                                Out of stock
+                              </span>
+                              <p className="text-[11px] text-zinc-400">{p.variants.length} variant(s)</p>
+                            </div>
+                          )}
                         </td>
                         <td className="p-3">
                           <button
@@ -2132,20 +2145,56 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
   const [formError, setFormError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Switch: 'This product has sizes or colours' (default OFF, or ON if editing existing product with size or color)
+  const hasExistingAttributes = Boolean(
+    initialProduct?.variants &&
+    initialProduct.variants.some(
+      (v) => (v.size && v.size.trim().length > 0) || (v.color && v.color.trim().length > 0)
+    )
+  );
+  const [hasVariants, setHasVariants] = useState<boolean>(hasExistingAttributes);
+
+  // When OFF: single stock quantity field. If editing existing product, sum of existing variants; otherwise empty string
+  const [simpleStock, setSimpleStock] = useState<string>(() => {
+    if (initialProduct?.variants && initialProduct.variants.length > 0) {
+      return String(initialProduct.variants.reduce((sum, v) => sum + (Number(v.stock_quantity) || 0), 0));
+    }
+    return '';
+  });
+
   // Variants state (size, color, SKU, price override, stock, active)
-  const [variants, setVariants] = useState<ProductVariant[]>(() => {
-    if (initialProduct && initialProduct.variants.length > 0) {
-      return initialProduct.variants;
+  // When ON: starts with 1 empty row (size, color, sku, stock). No pre-filled sample values like 'Standard' or auto-generated SKUs.
+  const [variants, setVariants] = useState<Array<{
+    id: string;
+    product_id: string;
+    size: string;
+    color: string;
+    price: number | null;
+    stock_quantity: number | string;
+    sku: string;
+    is_active: boolean;
+  }>>(() => {
+    if (initialProduct?.variants && initialProduct.variants.length > 0) {
+      return initialProduct.variants.map((v, i) => ({
+        id: v.id || `var-${Date.now()}-${i + 1}`,
+        product_id: v.product_id || initialProduct.id || '',
+        size: v.size || '',
+        color: v.color || '',
+        price: v.price ?? null,
+        stock_quantity: v.stock_quantity !== undefined ? v.stock_quantity : '',
+        sku: v.sku || '',
+        is_active: v.is_active ?? true,
+      }));
     }
     return [
       {
         id: `var-${Date.now()}-1`,
         product_id: '',
-        size: 'Standard',
-        color: 'Classic',
+        size: '',
+        color: '',
         price: null,
-        stock_quantity: 20,
-        sku: generateVariantSku(initialProduct?.slug || slug || name || 'BRV'),
+        stock_quantity: '',
+        sku: '',
         is_active: true,
       },
     ];
@@ -2234,17 +2283,29 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
       {
         id: `var-${Date.now()}-${prev.length + 1}`,
         product_id: initialProduct?.id || '',
-        size: 'Standard',
-        color: 'Classic',
+        size: '',
+        color: '',
         price: null,
-        stock_quantity: 15,
-        sku: generateVariantSku(slug || name || 'BRV'),
+        stock_quantity: '',
+        sku: '',
         is_active: true,
       },
     ]);
   };
 
-  const handleUpdateVariant = (index: number, updates: Partial<ProductVariant>) => {
+  const handleUpdateVariant = (
+    index: number,
+    updates: Partial<{
+      id: string;
+      product_id: string;
+      size: string;
+      color: string;
+      price: number | null;
+      stock_quantity: number | string;
+      sku: string;
+      is_active: boolean;
+    }>
+  ) => {
     setVariants((prev) => prev.map((v, i) => (i === index ? { ...v, ...updates } : v)));
   };
 
@@ -2269,34 +2330,92 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
     e.preventDefault();
     setFormError(null);
 
-    // 1. Inline validation check: Price Override cannot be negative
-    const hasNegativePrice = variants.some(
-      (v) => v.price !== null && v.price !== undefined && Number(v.price) < 0
-    );
-    if (hasNegativePrice) {
-      setFormError('Price override cannot be negative.');
-      return;
-    }
+    let finalVariants: ProductVariant[] = [];
 
-    // 2. Validate duplicate non-empty SKUs within this product's variants
-    const nonNullSkus = variants
-      .map((v) => (v.sku && typeof v.sku === 'string' ? v.sku.trim() : ''))
-      .filter((s) => s.length > 0);
-    const skuSet = new Set(nonNullSkus.map((s) => s.toUpperCase()));
-    if (skuSet.size !== nonNullSkus.length) {
-      setFormError('This SKU is already used by another product. Please change it.');
-      return;
-    }
+    if (!hasVariants) {
+      // Simple product: single stock quantity field. Required, whole number >= 0.
+      const trimmedStock = simpleStock.trim();
+      const parsedStock = Number(trimmedStock);
+      if (
+        trimmedStock === '' ||
+        isNaN(parsedStock) ||
+        parsedStock < 0 ||
+        !Number.isInteger(parsedStock)
+      ) {
+        setFormError('Please enter a valid stock quantity (whole number 0 or greater).');
+        return;
+      }
 
-    // 3. Normalize variants: empty SKU is NULL, empty price override is NULL
-    const cleanedVariants = variants.map((v) => {
-      const priceVal = validateVariantPriceOverride(v.price);
-      return {
-        ...v,
-        sku: normalizeVariantSku(v.sku),
-        price: priceVal.normalizedPrice,
-      };
-    });
+      finalVariants = [
+        {
+          id: initialProduct?.variants?.[0]?.id || `var-${Date.now()}-1`,
+          product_id: initialProduct?.id || '',
+          size: null,
+          color: null,
+          sku: null,
+          price: null,
+          stock_quantity: parsedStock,
+          is_active: true,
+        },
+      ];
+    } else {
+      // Variants mode:
+      if (variants.length === 0) {
+        setFormError('Please add at least one variant.');
+        return;
+      }
+
+      // 1. Validate that every row has a stock quantity (whole number >= 0)
+      for (let i = 0; i < variants.length; i++) {
+        const v = variants[i];
+        const rawStock = typeof v.stock_quantity === 'string' ? v.stock_quantity.trim() : String(v.stock_quantity);
+        const parsed = Number(rawStock);
+        if (
+          rawStock === '' ||
+          isNaN(parsed) ||
+          parsed < 0 ||
+          !Number.isInteger(parsed)
+        ) {
+          setFormError(`Please enter a valid stock quantity for variant row ${i + 1} (whole number >= 0).`);
+          return;
+        }
+      }
+
+      // 2. Validate price override cannot be negative
+      const hasNegativePrice = variants.some(
+        (v) => v.price !== null && v.price !== undefined && Number(v.price) < 0
+      );
+      if (hasNegativePrice) {
+        setFormError('Price override cannot be negative.');
+        return;
+      }
+
+      // 3. Validate duplicate typed SKUs (ignoring empty/whitespace)
+      const typedSkus = variants
+        .map((v) => (v.sku && typeof v.sku === 'string' ? v.sku.trim().toUpperCase() : ''))
+        .filter((s) => s.length > 0);
+      const skuSet = new Set(typedSkus);
+      if (skuSet.size !== typedSkus.length) {
+        setFormError('Duplicate SKU entered. Each variant SKU must be unique.');
+        return;
+      }
+
+      // 4. Map cleaned variants: size/color null if empty, sku null if empty, price null if empty
+      finalVariants = variants.map((v, i) => {
+        const priceVal = validateVariantPriceOverride(v.price);
+        const rawStock = typeof v.stock_quantity === 'string' ? v.stock_quantity.trim() : String(v.stock_quantity);
+        return {
+          id: v.id || `var-${Date.now()}-${i + 1}`,
+          product_id: initialProduct?.id || '',
+          size: v.size && v.size.trim().length > 0 ? v.size.trim() : null,
+          color: v.color && v.color.trim().length > 0 ? v.color.trim() : null,
+          sku: v.sku && v.sku.trim().length > 0 ? v.sku.trim().toUpperCase() : null,
+          price: priceVal.normalizedPrice,
+          stock_quantity: Number(rawStock),
+          is_active: v.is_active ?? true,
+        };
+      });
+    }
 
     setIsSaving(true);
     try {
@@ -2310,7 +2429,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
         images: images.length > 0 ? images : ['https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=800'],
         is_featured: isFeatured,
         is_active: isActive,
-        variants: cleanedVariants,
+        variants: finalVariants,
       });
       onClose();
     } catch (err: any) {
@@ -2594,109 +2713,189 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
             </div>
           </div>
 
-          {/* Section 4: Variants Management */}
-          <div className="p-4 bg-zinc-50 rounded-2xl border border-zinc-200 space-y-3">
-            <div className="flex items-center justify-between">
+          {/* Section 4: Variants & Inventory Stock */}
+          <div className="p-4 bg-[#F5EFE6] rounded-2xl border border-[#E3D5C4] space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <span className="font-bold text-zinc-900 uppercase tracking-wider text-[11px] block">
-                  4. Product Variants (Size, Color, SKU, Stock, Active)
+                <span className="font-bold text-[#3B2A20] uppercase tracking-wider text-[11px] block">
+                  4. Inventory & Variants
                 </span>
-                <span className="text-[11px] text-zinc-400">At least one variant required for stock availability.</span>
+                <span className="text-[11px] text-[#6B5B50]">
+                  Set stock quantity or configure multiple sizes/colors.
+                </span>
               </div>
-              <button
-                type="button"
-                onClick={handleAddVariant}
-                className="px-3 py-1.5 bg-emerald-900 hover:bg-emerald-800 text-white rounded-xl text-xs font-semibold flex items-center gap-1 shadow-xs"
-              >
-                <Plus className="w-3.5 h-3.5" /> Add Variant
-              </button>
+
+              {/* Switch: This product has sizes or colours */}
+              <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                <span className="text-xs font-bold text-[#3B2A20]">
+                  This product has sizes or colours
+                </span>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={hasVariants}
+                  onClick={() => {
+                    const next = !hasVariants;
+                    setHasVariants(next);
+                    if (next && variants.length === 0) {
+                      setVariants([
+                        {
+                          id: `var-${Date.now()}-1`,
+                          product_id: initialProduct?.id || '',
+                          size: '',
+                          color: '',
+                          price: null,
+                          stock_quantity: simpleStock,
+                          sku: '',
+                          is_active: true,
+                        },
+                      ]);
+                    }
+                  }}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
+                    hasVariants ? 'bg-[#B4502F]' : 'bg-[#D1C2AF]'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-xs ring-0 transition duration-200 ease-in-out ${
+                      hasVariants ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </label>
             </div>
 
-            <div className="space-y-2">
-              {variants.map((v, i) => (
-                <div key={v.id} className="grid grid-cols-7 gap-2 items-center bg-white p-3 rounded-xl border border-zinc-200/80 shadow-2xs">
-                  <div>
-                    <label className="text-[10px] font-bold text-zinc-500 block mb-0.5">Size</label>
-                    <input
-                      type="text"
-                      value={v.size || ''}
-                      onChange={(e) => handleUpdateVariant(i, { size: e.target.value })}
-                      placeholder="Size"
-                      className="w-full p-1.5 border rounded-lg text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-zinc-500 block mb-0.5">Color</label>
-                    <input
-                      type="text"
-                      value={v.color || ''}
-                      onChange={(e) => handleUpdateVariant(i, { color: e.target.value })}
-                      placeholder="Color"
-                      className="w-full p-1.5 border rounded-lg text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-zinc-500 block mb-0.5">SKU</label>
-                    <input
-                      type="text"
-                      value={v.sku || ''}
-                      onChange={(e) => handleUpdateVariant(i, { sku: e.target.value })}
-                      placeholder="e.g. CAM-7F3K"
-                      className="w-full p-1.5 border border-zinc-200 rounded-lg text-xs font-mono"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-zinc-500 block mb-0.5">Price Override</label>
-                    <input
-                      type="number"
-                      min={0}
-                      value={v.price !== null && v.price !== undefined ? v.price : ''}
-                      onChange={(e) => handlePriceOverrideChange(i, e.target.value)}
-                      placeholder="Base"
-                      className={`w-full p-1.5 border rounded-lg text-xs ${
-                        v.price !== null && v.price !== undefined && Number(v.price) < 0
-                          ? 'border-red-500 bg-red-50 text-red-900 focus:ring-red-500'
-                          : 'border-zinc-200'
-                      }`}
-                    />
-                    {v.price !== null && v.price !== undefined && Number(v.price) < 0 && (
-                      <span className="text-[10px] text-red-600 block mt-0.5 font-medium leading-tight">
-                        Price override cannot be negative.
-                      </span>
-                    )}
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-zinc-500 block mb-0.5">Stock Qty</label>
-                    <input
-                      type="number"
-                      min={0}
-                      value={v.stock_quantity}
-                      onChange={(e) => handleUpdateVariant(i, { stock_quantity: Number(e.target.value) })}
-                      className="w-full p-1.5 border rounded-lg text-xs font-bold"
-                    />
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <label className="text-[10px] font-bold text-zinc-500 block mb-1">Active</label>
-                    <input
-                      type="checkbox"
-                      checked={v.is_active}
-                      onChange={(e) => handleUpdateVariant(i, { is_active: e.target.checked })}
-                      className="rounded text-emerald-800 focus:ring-emerald-700 w-4 h-4 cursor-pointer"
-                    />
-                  </div>
-                  <div className="flex justify-end pt-3">
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveVariant(i)}
-                      className="p-1.5 text-rose-500 hover:text-rose-700 rounded-lg hover:bg-rose-50"
-                      title="Remove Variant"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+            {/* When OFF: Simple Stock Quantity */}
+            {!hasVariants ? (
+              <div className="p-4 bg-white rounded-xl border border-[#E3D5C4] space-y-2">
+                <label className="block font-bold text-[#3B2A20] text-xs">
+                  Stock quantity <span className="text-[#B4502F]">*</span>
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  step={1}
+                  required
+                  value={simpleStock}
+                  onChange={(e) => setSimpleStock(e.target.value)}
+                  placeholder="e.g. 25"
+                  className="w-full sm:max-w-xs px-3.5 py-2.5 border border-[#E3D5C4] rounded-xl bg-white text-[#3B2A20] text-xs font-bold focus:outline-hidden focus:ring-2 focus:ring-[#B4502F]"
+                />
+                <p className="text-[11px] text-[#6B5B50]">
+                  Required whole number (0 or greater). Creates a single inventory record with no size, color, or SKU required.
+                </p>
+              </div>
+            ) : (
+              /* When ON: Variants Table */
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-[#6B5B50]">
+                    Configure sizes, colors, optional SKUs, and required stock per variant.
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleAddVariant}
+                    className="px-3 py-1.5 bg-[#B4502F] hover:bg-[#964225] text-white rounded-xl text-xs font-semibold flex items-center gap-1 shadow-xs cursor-pointer transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" /> Add Variant
+                  </button>
                 </div>
-              ))}
-            </div>
+
+                <div className="space-y-2">
+                  {variants.map((v, i) => (
+                    <div
+                      key={v.id}
+                      className="grid grid-cols-1 sm:grid-cols-7 gap-2 items-center bg-white p-3 rounded-xl border border-[#E3D5C4] shadow-2xs"
+                    >
+                      <div>
+                        <label className="text-[10px] font-bold text-[#6B5B50] block mb-0.5">Size</label>
+                        <input
+                          type="text"
+                          value={v.size || ''}
+                          onChange={(e) => handleUpdateVariant(i, { size: e.target.value })}
+                          placeholder="e.g. M, L, 50ml"
+                          className="w-full p-2 border border-[#E3D5C4] rounded-lg text-xs"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-[#6B5B50] block mb-0.5">Color</label>
+                        <input
+                          type="text"
+                          value={v.color || ''}
+                          onChange={(e) => handleUpdateVariant(i, { color: e.target.value })}
+                          placeholder="e.g. Olive, Brown"
+                          className="w-full p-2 border border-[#E3D5C4] rounded-lg text-xs"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-[#6B5B50] block mb-0.5">SKU (Optional)</label>
+                        <input
+                          type="text"
+                          value={v.sku || ''}
+                          onChange={(e) => handleUpdateVariant(i, { sku: e.target.value })}
+                          placeholder="Optional"
+                          className="w-full p-2 border border-[#E3D5C4] rounded-lg text-xs font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-[#6B5B50] block mb-0.5">Price Override</label>
+                        <input
+                          type="number"
+                          min={0}
+                          value={v.price !== null && v.price !== undefined ? v.price : ''}
+                          onChange={(e) => handlePriceOverrideChange(i, e.target.value)}
+                          placeholder="Base"
+                          className={`w-full p-2 border rounded-lg text-xs ${
+                            v.price !== null && v.price !== undefined && Number(v.price) < 0
+                              ? 'border-red-500 bg-red-50 text-red-900 focus:ring-red-500'
+                              : 'border-[#E3D5C4]'
+                          }`}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-[#6B5B50] block mb-0.5">
+                          Stock Qty <span className="text-[#B4502F]">*</span>
+                        </label>
+                        <input
+                          type="number"
+                          min={0}
+                          step={1}
+                          required
+                          value={v.stock_quantity !== undefined ? v.stock_quantity : ''}
+                          onChange={(e) =>
+                            handleUpdateVariant(i, {
+                              stock_quantity: e.target.value === '' ? '' : Number(e.target.value),
+                            })
+                          }
+                          placeholder="0"
+                          className="w-full p-2 border border-[#E3D5C4] rounded-lg text-xs font-bold"
+                        />
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <label className="text-[10px] font-bold text-[#6B5B50] block mb-1">Active</label>
+                        <input
+                          type="checkbox"
+                          checked={v.is_active}
+                          onChange={(e) => handleUpdateVariant(i, { is_active: e.target.checked })}
+                          className="rounded text-[#B4502F] focus:ring-[#B4502F] w-4 h-4 cursor-pointer"
+                        />
+                      </div>
+                      <div className="flex justify-end pt-2 sm:pt-3">
+                        <button
+                          type="button"
+                          disabled={variants.length <= 1}
+                          onClick={() => handleRemoveVariant(i)}
+                          className="p-1.5 text-[#B3372F] hover:text-[#881337] disabled:opacity-30 rounded-lg hover:bg-rose-50 cursor-pointer"
+                          title="Remove Variant"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Section 5: Flags */}
@@ -3173,11 +3372,11 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ order, onClose }) => {
           {/* Header */}
           <div className="flex justify-between items-start border-b-2 border-zinc-900 pb-4">
             <div>
-              <h2 className="font-serif text-3xl font-bold tracking-tight text-zinc-950">
-                BARVAKA
-              </h2>
+              <div className="flex items-center gap-2 mb-1">
+                <img src="/logo.png" alt="Arooj" className="h-9 w-auto object-contain" />
+              </div>
               <p className="text-xs font-medium text-zinc-500 tracking-wide mt-0.5">
-                Quality · Fast Delivery · Trust · Khayr
+                Shop smart · Live better
               </p>
               <p className="text-xs text-zinc-400 mt-1">
                 Direct Dispatch Center · Pakistan Nationwide COD

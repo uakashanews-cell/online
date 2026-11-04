@@ -1,6 +1,6 @@
-# BARVAKA — Premier Online Store
+# Arooj — Online Store
 
-BARVAKA is Pakistan's premier online store delivering stitched apparel, pure artisanal attars, genuine leather goods, and lifestyle essentials nationwide. Built upon the brand pillars: **Quality · Fast Delivery · Trust · Khayr**.
+Arooj is Pakistan's online store delivering stitched apparel, pure artisanal attars, genuine leather goods, and lifestyle essentials nationwide. Built upon the brand motto: **Shop smart · Live better**.
 
 ---
 
@@ -8,8 +8,8 @@ BARVAKA is Pakistan's premier online store delivering stitched apparel, pure art
 
 * **100% Cash on Delivery (COD)**: Dedicated single-page checkout optimized for Pakistan with zero prepayments required.
 * **Free Delivery Nationwide**: Express dispatch across 200+ Pakistani cities with open parcel inspection allowed at the doorstep.
-* **Islamic-Inspired Elegance**: Warm cream background (`#F8F4EA`), deep emerald green (`#0F3B2E`), gold accents (`#B8963E`), and `Cormorant Garamond` serif headings.
-* **BARVAKA Assistant**: Client-side instant store advisor answering questions on pricing, stock, sizing, categories, and delivery from live catalog data without external AI APIs.
+* **Warm Boutique Aesthetics**: Warm cream background, terracotta accents, sage green, and refined serif headings matching the official Arooj brand identity.
+* **Arooj Assistant**: Client-side instant store advisor answering questions on pricing, stock, sizing, categories, and delivery from live catalog data without external AI APIs.
 * **Instant Demo Mode**: Automatically active out of the box when Supabase environment variables are unset. Seamlessly switch between **Guest**, **Customer**, and **Store Owner (Admin)** views in the top navigation bar.
 * **Production-Ready PostgreSQL Backend**: Complete schema (`/supabase/schema.sql`) and initial seed data (`/supabase/seed.sql`) implementing Row Level Security (RLS), atomic RPCs (`place_order`, `get_guest_order`, `validate_coupon`, `update_order_status`, `admin_dashboard_stats`), and automated inventory management.
 
@@ -41,7 +41,7 @@ VITE_SUPABASE_ANON_KEY="your-anon-key"
 
 ## Connect Supabase
 
-Follow these 7 steps to connect BARVAKA to your live Supabase backend:
+Follow these 7 steps to connect Arooj to your live Supabase backend:
 
 1. **Create Project**: Create a new project at [supabase.com](https://supabase.com).
 2. **Run SQL Schema**: Open the **SQL Editor** in your Supabase dashboard, paste the contents of `supabase/schema.sql`, and click **Run**. This idempotently sets up all 9 tables, indexes, triggers, Row Level Security policies, RPCs (`place_order`, `validate_coupon`, `get_guest_order`, `update_order_status`, `admin_dashboard_stats`), and the `'product-images'` public storage bucket.
@@ -64,6 +64,7 @@ Follow these 7 steps to connect BARVAKA to your live Supabase backend:
 * `npm run build`: Compiles TypeScript and creates optimized production client bundles in `dist`.
 * `npm run preview`: Previews the compiled production build locally.
 * `npm run lint`: Validates TypeScript types across the codebase (`tsc --noEmit`).
+* `npm test`: Runs Node test runner on unit tests.
 
 ---
 
@@ -97,7 +98,7 @@ Follow these 7 steps to connect BARVAKA to your live Supabase backend:
 
 ## Admin Security & Access Control
 
-BARVAKA implements a dedicated, secure login gate for administrative operations:
+Arooj implements a dedicated, secure login gate for administrative operations:
 
 * **Admin Identity**: Only `uakashafanny@gmail.com` (configured in `src/config/site.ts` as `ADMIN_EMAIL`) may access the administrative control center.
 * **Strict Zero Password Exposure**: The real administrator password is **NEVER stored anywhere in code, repository files, `.env`, README, comments, or localStorage**. The password is set and managed exclusively in Supabase Auth.
@@ -131,7 +132,7 @@ BARVAKA implements a dedicated, secure login gate for administrative operations:
 
 ## WhatsApp Ordering & Instant Support
 
-BARVAKA integrates direct-to-WhatsApp ordering and customer support across storefront and admin workflows:
+Arooj integrates direct-to-WhatsApp ordering and customer support across storefront and admin workflows:
 
 * **WhatsApp Helpline Number**:
   - Configured in `src/config/site.ts` as `WHATSAPP_NUMBER = '923027651284'` (digits only with Pakistan country code `92`, no spaces or `+`).
@@ -143,9 +144,9 @@ BARVAKA integrates direct-to-WhatsApp ordering and customer support across store
   - **Admin Customer Messaging (`/admin/orders/:id`)**: "Message Customer on WhatsApp" button prefilling order status updates, totals, and greetings addressed to the customer's normalized phone number.
 * **Image Preview Limitation & Architecture**:
   - Standard `https://wa.me/` URLs cannot attach raw binary image files directly as parameters.
-  - BARVAKA solves this by converting all image paths to absolute HTTPS URLs (`toAbsoluteUrl`) and placing the primary item image near the top of the message text. WhatsApp clients (mobile and web) automatically generate rich visual link preview cards and thumbnails when the link is tapped or sent.
+  - Arooj solves this by converting all image paths to absolute HTTPS URLs (`toAbsoluteUrl`) and placing the primary item image near the top of the message text. WhatsApp clients (mobile and web) automatically generate rich visual link preview cards and thumbnails when the link is tapped or sent.
 * **Floating WhatsApp Button**:
-  - Persistent bottom-right floating support button on all public storefront pages prefilled with `"Hello BARVAKA, I need help."`
+  - Persistent bottom-right floating support button on all public storefront pages prefilled with `"Hello Arooj, I need help."`
   - Position is automatically raised on product detail pages (`bottom-20 md:bottom-6`) to prevent overlapping the mobile sticky Add to Cart bar. Automatically suppressed on all `/admin/*` routes.
 
 ---
