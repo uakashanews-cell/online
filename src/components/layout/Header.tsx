@@ -109,14 +109,17 @@ export const Header: React.FC<HeaderProps> = ({
               setCurrentTab('home');
               setMobileMenuOpen(false);
             }}
-            className="flex items-center text-left group focus:outline-hidden cursor-pointer"
+            className="flex items-center gap-2.5 text-left group focus:outline-hidden cursor-pointer"
             aria-label="Arooj"
           >
             <img
               src="/logo.png"
               alt="Arooj"
-              className="h-8 sm:h-10 w-auto object-contain select-none"
+              className="h-9 sm:h-10 w-auto object-contain select-none transition-transform duration-300 group-hover:scale-105"
             />
+            <span className="font-serif text-2xl font-bold text-[#3B2A20] tracking-tight">
+              Arooj
+            </span>
           </button>
 
           {/* Centered Nav Links (Desktop) */}

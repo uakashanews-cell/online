@@ -17,32 +17,32 @@ import {
 import { WHATSAPP_NUMBER } from '../config/site';
 
 test('normalizePkPhone converts Pakistani phone formats to 923XXXXXXXXX', () => {
-  assert.equal(WHATSAPP_NUMBER, '923027651284');
+  assert.equal(WHATSAPP_NUMBER, '923039160621');
 
   // Standard 03XXXXXXXXX (11 digits)
-  assert.equal(normalizePkPhone('03027651284'), '923027651284');
+  assert.equal(normalizePkPhone('03039160621'), '923039160621');
   assert.equal(normalizePkPhone('03001234567'), '923001234567');
 
   // With dashes and spaces
-  assert.equal(normalizePkPhone('0302-7651284'), '923027651284');
+  assert.equal(normalizePkPhone('0303-9160621'), '923039160621');
   assert.equal(normalizePkPhone('0300 123 4567'), '923001234567');
 
   // With +92
-  assert.equal(normalizePkPhone('+923027651284'), '923027651284');
+  assert.equal(normalizePkPhone('+923039160621'), '923039160621');
   assert.equal(normalizePkPhone('+92 300 1234567'), '923001234567');
 
   // Already 923...
-  assert.equal(normalizePkPhone('923027651284'), '923027651284');
+  assert.equal(normalizePkPhone('923039160621'), '923039160621');
 
   // Empty string falls back to WHATSAPP_NUMBER
-  assert.equal(normalizePkPhone(''), '923027651284');
+  assert.equal(normalizePkPhone(''), '923039160621');
 });
 
 test('buildWhatsAppUrl constructs valid wa.me URLs', () => {
-  const url = buildWhatsAppUrl('Hello AROOJ, test message');
+  const url = buildWhatsAppUrl('Hello Arooj, test message');
   assert.equal(
     url,
-    'https://wa.me/923027651284?text=Hello%20AROOJ%2C%20test%20message'
+    'https://wa.me/923039160621?text=Hello%20Arooj%2C%20test%20message'
   );
 
   const customUrl = buildWhatsAppUrl('Status update', '03001234567');

@@ -35,12 +35,22 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentTab }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-[#6B5B50]/30">
           {/* Brand Info with Logo Component */}
           <div className="space-y-4">
-            <div className="bg-[#FBF5EC] p-2 rounded-xl inline-block max-w-[200px]">
-              <img
-                src="/logo-full.png"
-                alt="Arooj"
-                className="h-10 sm:h-12 w-auto object-contain"
-              />
+            <div className="flex items-center gap-3">
+              <div className="bg-[#FBF5EC] p-2 rounded-xl inline-block shadow-xs">
+                <img
+                  src="/logo.png"
+                  alt="Arooj"
+                  className="h-10 w-auto object-contain"
+                />
+              </div>
+              <div>
+                <span className="font-serif text-2xl font-bold text-[#F3E9DC] block leading-none">
+                  Arooj
+                </span>
+                <span className="text-[11px] text-[#DDE3D3] tracking-wide mt-1 block">
+                  Shop smart · Live better
+                </span>
+              </div>
             </div>
             <p className="text-xs text-[#F3E9DC]/80 leading-relaxed pt-1">
               Arooj is an online store in Pakistan offering stitched apparel, accessories, and lifestyle essentials with 100% Cash on Delivery and Free Delivery nationwide.

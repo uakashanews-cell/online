@@ -359,7 +359,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `AROOJ_Orders_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `Arooj_Orders_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -3372,8 +3372,9 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ order, onClose }) => {
           {/* Header */}
           <div className="flex justify-between items-start border-b-2 border-zinc-900 pb-4">
             <div>
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2.5 mb-1">
                 <img src="/logo.png" alt="Arooj" className="h-9 w-auto object-contain" />
+                <span className="font-serif text-2xl font-bold text-zinc-900 tracking-tight">Arooj</span>
               </div>
               <p className="text-xs font-medium text-zinc-500 tracking-wide mt-0.5">
                 Shop smart · Live better

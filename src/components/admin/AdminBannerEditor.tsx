@@ -7,6 +7,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { HomeBanner, Category, Product } from '../../types';
 import { bannerService } from '../../services/bannerService';
+import { settingsService } from '../../services/settingsService';
 import { HomeHeroBanner } from '../home/HomeHeroBanner';
 import { isDemoMode } from '../../lib/supabaseClient';
 import { validateImageFile } from '../../services/storageService';
@@ -38,8 +39,8 @@ export const AdminBannerEditor: React.FC<AdminBannerEditorProps> = ({
 
   const { data: initialBanner, isLoading, isError, error: queryError } = useQuery({
     queryKey: ['home-banner', 'admin'],
-    queryFn: bannerService.getAdminBanner,
-    staleTime: 60 * 1000,
+    queryFn: settingsService.getHeroBanner,
+    staleTime: 30 * 1000,
     retry: 1,
   });
 
@@ -126,7 +127,7 @@ export const AdminBannerEditor: React.FC<AdminBannerEditorProps> = ({
       id: 1,
       is_active: isActive,
       label: label.trim(),
-      headline: headline.trim() || 'Hero Headline',
+      headline: headline.trim() || 'Welcome to Arooj',
       subtext: subtext.trim(),
       button_text: buttonText.trim() || 'Explore the shop',
       button_link: computedButtonLink || '/shop',
@@ -196,7 +197,7 @@ export const AdminBannerEditor: React.FC<AdminBannerEditorProps> = ({
         bannerService.deleteBannerImage(oldUploadedUrl).catch(() => {});
       }
 
-      await bannerService.saveBanner({
+      const saved = await settingsService.saveHeroBanner({
         is_active: isActive,
         label: label.trim().slice(0, 30),
         headline: headline.trim().slice(0, 80),
@@ -210,14 +211,14 @@ export const AdminBannerEditor: React.FC<AdminBannerEditorProps> = ({
       // Update baseline oldUploadedUrl
       setOldUploadedUrl(imageUrl);
 
-      // Invalidate queries so admin and storefront update
+      // Instantly update cache and invalidate queries so admin and storefront update immediately without reload
+      queryClient.setQueryData(['home-banner', 'admin'], saved);
+      queryClient.setQueryData(['home-banner', 'public'], saved);
       await queryClient.invalidateQueries({ queryKey: ['home-banner'] });
 
       showToast('Home banner updated successfully!', 'success');
     } catch (err: any) {
-      const errorMsg = !isDemoMode
-        ? 'Banner table not found or not accessible. Run the home_banner SQL in Supabase.'
-        : (err?.message || 'Failed to save home banner.');
+      const errorMsg = err?.message || 'Failed to save home banner.';
       setSaveErrorMessage(errorMsg);
       showToast(errorMsg, 'error');
     } finally {
@@ -234,16 +235,16 @@ export const AdminBannerEditor: React.FC<AdminBannerEditorProps> = ({
     );
   }
 
-  if (isError && !isDemoMode) {
+  if (isError && !isDemoMode && !initialBanner) {
     return (
       <div className="space-y-6">
         <div className="p-6 bg-red-50 rounded-[24px] border border-red-300 text-red-900 shadow-xs space-y-3">
           <div className="flex items-center gap-3 text-red-700 font-bold text-base">
             <AlertTriangle className="w-6 h-6 text-red-600 shrink-0" />
-            <span>Banner table not found or not accessible. Run the home_banner SQL in Supabase.</span>
+            <span>Banner settings not found or not accessible. Run the site_settings SQL in Supabase.</span>
           </div>
           <p className="text-xs text-red-700">
-            The home_banner table could not be read from your Supabase database. Please execute the home_banner SQL migration in your Supabase SQL editor.
+            {(queryError as any)?.message || 'The site_settings table could not be read from your Supabase database. Please execute the site_settings SQL migration in your Supabase SQL editor.'}
           </p>
         </div>
       </div>

@@ -278,7 +278,7 @@ export const productService = {
       const newProd: Product = {
         ...product,
         variants: formattedVariants,
-        id: `prod-${Date.now()}`,
+        id: `prod-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
         created_at: new Date().toISOString(),
       };
       localProducts.unshift(newProd);

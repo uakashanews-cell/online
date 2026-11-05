@@ -972,10 +972,101 @@ INSERT INTO public.home_banner (id, is_active, label, headline, subtext, button_
 VALUES (
   1,
   true,
-  'Curated Essentials',
-  'Little things that make a house feel like home',
-  'Thoughtfully curated attire, leather accessories, and home accents delivered across Pakistan.',
-  'Explore the shop',
+  'New',
+  'Welcome to Arooj',
+  'Free delivery on all orders. Pay on arrival.',
+  'Shop now',
   '/shop'
 )
 ON CONFLICT (id) DO NOTHING;
+
+-- ============================================================================
+-- 10. SITE SETTINGS TABLE & POLICIES (Key-Value JSONB Settings)
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS public.site_settings (
+  key text PRIMARY KEY,
+  value jsonb NOT NULL DEFAULT '{}',
+  updated_at timestamptz DEFAULT now()
+);
+
+-- Enable RLS
+ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
+
+-- Anyone (anon and authenticated) can view settings
+DROP POLICY IF EXISTS "Anyone can view site_settings" ON public.site_settings;
+CREATE POLICY "Anyone can view site_settings"
+  ON public.site_settings FOR SELECT
+  TO anon, authenticated
+  USING (true);
+
+-- Only admins can INSERT / UPDATE / DELETE settings
+DROP POLICY IF EXISTS "Admins can insert site_settings" ON public.site_settings;
+CREATE POLICY "Admins can insert site_settings"
+  ON public.site_settings FOR INSERT
+  TO authenticated
+  WITH CHECK (public.is_admin());
+
+DROP POLICY IF EXISTS "Admins can update site_settings" ON public.site_settings;
+CREATE POLICY "Admins can update site_settings"
+  ON public.site_settings FOR UPDATE
+  TO authenticated
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
+
+DROP POLICY IF EXISTS "Admins can delete site_settings" ON public.site_settings;
+CREATE POLICY "Admins can delete site_settings"
+  ON public.site_settings FOR DELETE
+  TO authenticated
+  USING (public.is_admin());
+
+-- Grant table access
+GRANT SELECT ON public.site_settings TO anon, authenticated;
+GRANT ALL ON public.site_settings TO authenticated;
+
+-- Updated at trigger
+DROP TRIGGER IF EXISTS trg_site_settings_updated_at ON public.site_settings;
+CREATE TRIGGER trg_site_settings_updated_at
+  BEFORE UPDATE ON public.site_settings
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- Initial seed row for home_hero_banner
+INSERT INTO public.site_settings (key, value)
+VALUES (
+  'home_hero_banner',
+  jsonb_build_object(
+    'id', 1,
+    'is_active', true,
+    'label', 'New',
+    'headline', 'Welcome to Arooj',
+    'subtext', 'Free delivery on all orders. Pay on arrival.',
+    'button_text', 'Shop now',
+    'button_link', '/shop',
+    'image_url', null,
+    'ends_at', null,
+    'updated_at', now()
+  )
+)
+ON CONFLICT (key) DO NOTHING;
+
+-- Fix existing saved rows: update headline to 'Welcome to Arooj' if it contains 'BARVAKA'
+UPDATE public.site_settings
+SET value = jsonb_set(value, '{headline}', '"Welcome to Arooj"')
+WHERE key = 'home_hero_banner'
+  AND (value->>'headline' ILIKE '%BARVAKA%');
+
+-- Also fix legacy home_banner table if present
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables 
+    WHERE table_schema = 'public' AND table_name = 'home_banner'
+  ) THEN
+    UPDATE public.home_banner
+    SET headline = 'Welcome to Arooj'
+    WHERE headline ILIKE '%BARVAKA%';
+  END IF;
+END $$;
+
+NOTIFY pgrst, 'reload schema';
+

@@ -135,7 +135,7 @@ Arooj implements a dedicated, secure login gate for administrative operations:
 Arooj integrates direct-to-WhatsApp ordering and customer support across storefront and admin workflows:
 
 * **WhatsApp Helpline Number**:
-  - Configured in `src/config/site.ts` as `WHATSAPP_NUMBER = '923027651284'` (digits only with Pakistan country code `92`, no spaces or `+`).
+  - Configured in `src/config/site.ts` as `WHATSAPP_NUMBER = '923039160621'` (digits only with Pakistan country code `92`, no spaces or `+`).
   - Helper functions in `src/lib/whatsapp.ts` normalize local numbers (`03XXXXXXXXX` or `+923XXXXXXXXX`) to the `923XXXXXXXXX` standard.
 * **Message Formats**:
   - **Product Page (`/product/:slug`)**: Prominent "Order on WhatsApp" button with WhatsApp green (`#25D366`). Requires variant selection and sends structured item details: product name, selected variant (size/color), quantity, unit price, total (Free Delivery, COD), absolute image URL, and product page link.

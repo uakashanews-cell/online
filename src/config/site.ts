@@ -4,9 +4,9 @@
  */
 
 export const ADMIN_EMAIL = 'uakashafanny@gmail.com';
-export const WHATSAPP_NUMBER = '923027651284';
-export const CALL_NUMBER = '923027651284';
-export const PHONE_DISPLAY = '0302-7651284';
+export const WHATSAPP_NUMBER = '923039160621';
+export const CALL_NUMBER = '923039160621';
+export const PHONE_DISPLAY = '0303-9160621';
 export const CONTACT_EMAIL = 'uakashanews@gmail.com';
 export const ADDRESS = 'Rahim Yar Khan, Punjab, Pakistan';
 export const DELIVERY_TIME_TEXT = '';
@@ -34,7 +34,7 @@ export const siteConfig = {
   deliveryFee: 0,
   freeDeliveryThreshold: 0, // Always free delivery
   support: {
-    whatsapp: "+92 302 7651284",
+    whatsapp: "+92 303 9160621",
     whatsappDisplay: PHONE_DISPLAY,
     whatsappNumber: WHATSAPP_NUMBER,
     phone: PHONE_DISPLAY,

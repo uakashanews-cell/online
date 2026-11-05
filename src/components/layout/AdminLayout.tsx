@@ -138,6 +138,7 @@ export const AdminLayout: React.FC = () => {
 
           <Link to="/admin" className="flex items-center gap-2.5" aria-label="Arooj Admin">
             <img src="/logo.png" alt="Arooj" className="h-8 w-auto object-contain select-none" />
+            <span className="font-serif text-xl font-bold text-[#F3E9DC] tracking-tight">Arooj</span>
             <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#B4502F]/30 text-[#F3E9DC] border border-[#B4502F]/50 hidden sm:inline-block">
               Store Owner Portal
             </span>

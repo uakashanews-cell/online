@@ -193,7 +193,7 @@ export function formatCartMessage(params: {
   let fullMessage = lines.join('\n');
 
   // Ensure full wa.me URL length stays safely under 2000 characters
-  // wa.me/923027651284?text= is approx 35 chars
+  // wa.me/923039160621?text= is approx 35 chars
   const maxSafeCharLimit = 1850;
   if (encodeURIComponent(fullMessage).length > maxSafeCharLimit) {
     // Compact items representation if URL is too long
@@ -300,7 +300,7 @@ export function formatCustomerUpdateMessage(order: {
 
   return [
     `${greeting},`,
-    `This is AROOJ regarding your Order *#${order.order_number}*.`,
+    `This is Arooj regarding your Order *#${order.order_number}*.`,
     '',
     `Current Status: *${readableStatus}*`,
     `Total Amount (COD): *Rs. ${order.total.toLocaleString('en-PK')}*`,
