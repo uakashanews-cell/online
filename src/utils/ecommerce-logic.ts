@@ -171,9 +171,24 @@ export function checkVariantStock(
  * Validates Pakistan phone numbers (e.g. 03001234567, 0300-1234567, +923001234567)
  */
 export function validatePhonePK(phone: string): boolean {
-  if (!phone) return false;
-  const cleaned = phone.replace(/[\s\-\(\)]/g, '');
-  // Matches 03XXXXXXXXX (11 digits) or +923XXXXXXXXX (13 chars) or 923XXXXXXXXX (12 digits)
+  if (!phone || typeof phone !== 'string') return false;
+  // Convert Urdu / Eastern Arabic digits to ASCII 0-9
+  const converted = phone
+    .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0))
+    .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660));
+  // Clean all formatting characters like spaces, dashes, parentheses, dots, commas, slashes
+  let cleaned = converted.trim().replace(/[\s\-\(\)\.\,\/]/g, '');
+  // Normalize leading 0092 to +92
+  if (cleaned.startsWith('0092')) {
+    cleaned = `+92${cleaned.slice(4)}`;
+  }
+  // If formatted like +9203... or 9203..., strip the redundant 0 before 3
+  if (cleaned.startsWith('+9203')) {
+    cleaned = `+923${cleaned.slice(5)}`;
+  } else if (cleaned.startsWith('9203')) {
+    cleaned = `923${cleaned.slice(4)}`;
+  }
+  // Matches 03XXXXXXXXX (11 digits), +923XXXXXXXXX, 923XXXXXXXXX, or 3XXXXXXXXX (10 digits)
   const pkPhoneRegex = /^((\+92)|(92)|0)?3\d{9}$/;
   return pkPhoneRegex.test(cleaned);
 }
@@ -184,26 +199,31 @@ export function validatePhonePK(phone: string): boolean {
 export function validateCheckoutForm(form: Partial<CheckoutFormData>): { isValid: boolean; errors: Record<string, string> } {
   const errors: Record<string, string> = {};
 
-  if (!form.fullName || form.fullName.trim().length < 3) {
-    errors.fullName = 'Full Name is required (minimum 3 characters)';
+  const fullName = (form.fullName || '').trim();
+  if (!fullName || fullName.length < 2) {
+    errors.fullName = 'Full Name is required (minimum 2 characters)';
   }
 
-  if (!form.phone || !validatePhonePK(form.phone)) {
-    errors.phone = 'Valid Pakistan mobile number is required (e.g. 0300-1234567)';
+  const phone = (form.phone || '').trim();
+  if (!phone || !validatePhonePK(phone)) {
+    errors.phone = 'Valid Pakistan mobile number is required (e.g. 0300-1234567 or +92 300 1234567)';
   }
 
-  if (form.email && form.email.trim().length > 0) {
+  const email = (form.email || '').trim();
+  if (email.length > 0) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(form.email.trim())) {
+    if (!emailRegex.test(email)) {
       errors.email = 'Please enter a valid email address';
     }
   }
 
-  if (!form.address || form.address.trim().length < 6) {
+  const address = (form.address || '').trim();
+  if (!address || address.length < 5) {
     errors.address = 'Detailed delivery address is required (house/shop, street, area)';
   }
 
-  if (!form.city || form.city.trim().length < 2) {
+  const city = (form.city || '').trim();
+  if (!city || city.length < 2) {
     errors.city = 'Please specify your city';
   }
 

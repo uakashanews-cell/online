@@ -450,7 +450,34 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                 </div>
               );
             })()
-          ) : userOrders.length === 0 ? (
+          ) : (
+            <>
+              {/* Dedicated My Orders Hub Card */}
+              <div className="bg-[#DDE3D3]/40 rounded-[20px] border border-[#8A9A7B]/40 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#8A9A7B] text-white flex items-center justify-center shrink-0">
+                    <Package className="w-5 h-5" strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <h3 className="font-serif font-bold text-sm text-[#3B2A20]">
+                      Dedicated Order History & Live Status Hub
+                    </h3>
+                    <p className="text-xs text-[#6B5B50] mt-0.5">
+                      View real-time fulfillment timelines, filter by status, and contact WhatsApp support.
+                    </p>
+                  </div>
+                </div>
+
+                <Link
+                  to="/my-orders"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#B4502F] hover:bg-[#a04426] text-white rounded-full text-xs font-semibold shadow-xs min-h-[44px] transition-colors shrink-0"
+                >
+                  <span>Open My Orders Hub</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+
+              {userOrders.length === 0 ? (
             <div className="bg-[#FBF5EC] rounded-[24px] border border-[#E3D5C4] p-12 text-center space-y-3">
               <Package className="w-10 h-10 text-[#8A9A7B] mx-auto" />
               <h3 className="font-serif font-bold text-base text-[#3B2A20]">No Orders Placed Yet</h3>
@@ -543,6 +570,8 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                 </div>
               ))}
             </div>
+          )}
+          </>
           )}
         </div>
       )}

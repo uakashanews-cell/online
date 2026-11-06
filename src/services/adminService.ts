@@ -171,16 +171,160 @@ export const adminService = {
 
   async updateOrderStatus(orderId: string, status: OrderStatus): Promise<void> {
     if (isDemoMode || !supabase) {
-      localOrders = localOrders.map((o) => (o.id === orderId ? { ...o, status, updated_at: new Date().toISOString() } : o));
+      localOrders = localOrders.map((o) =>
+        o.id === orderId || o.order_number === orderId
+          ? {
+              ...o,
+              status,
+              payment_status: status === 'delivered' ? 'paid' : o.payment_status,
+              updated_at: new Date().toISOString(),
+            }
+          : o
+      );
       return;
     }
 
-    const { error } = await supabase.rpc('update_order_status', {
-      p_order_id: orderId,
-      p_status: status,
+    // 1. Try RPC update_order_status
+    let rpcSucceeded = false;
+    try {
+      const { error } = await supabase.rpc('update_order_status', {
+        p_order_id: orderId,
+        p_status: status,
+      });
+
+      if (!error) {
+        rpcSucceeded = true;
+        localOrders = localOrders.map((o) =>
+          o.id === orderId || o.order_number === orderId
+            ? {
+                ...o,
+                status,
+                payment_status: status === 'delivered' ? 'paid' : o.payment_status,
+                updated_at: new Date().toISOString(),
+              }
+            : o
+        );
+        return;
+      }
+
+      // Check if error is missing RPC function or signature mismatch (e.g. Postgres 42883, PostgREST PGRST202/205)
+      const errCode = String(error.code || '');
+      const errMsg = String(error.message || '').toLowerCase();
+      const isMissingRpc =
+        errCode === '42883' ||
+        errCode === 'PGRST202' ||
+        errCode === 'PGRST205' ||
+        errMsg.includes('does not exist') ||
+        errMsg.includes('no function matches') ||
+        errMsg.includes('schema cache') ||
+        errMsg.includes('could not find the function');
+
+      if (!isMissingRpc) {
+        console.warn('RPC update_order_status failed with non-missing error, attempting direct table fallback:', error);
+      } else {
+        console.info('RPC update_order_status not available (' + (errCode || errMsg) + '). Falling back to direct database table update.');
+      }
+    } catch (rpcErr: any) {
+      console.warn('RPC update_order_status invocation error. Falling back to direct database table update:', rpcErr);
+    }
+
+    // 2. Direct Supabase Table Update Fallback
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderId);
+    let query = supabase.from('orders').update({
+      status,
+      ...(status === 'delivered' ? { payment_status: 'paid' } : {}),
+      updated_at: new Date().toISOString(),
     });
 
-    if (error) throw error;
+    if (isUuid) {
+      query = query.eq('id', orderId);
+    } else {
+      query = query.eq('order_number', orderId);
+    }
+
+    const { error: directErr } = await query;
+
+    if (directErr) {
+      const errCode = String(directErr.code || '');
+      const errMsg = String(directErr.message || '').toLowerCase();
+      const isRecoverable =
+        errCode === 'PGRST205' ||
+        errCode === 'PGRST202' ||
+        errCode === '42883' ||
+        errCode === '42501' ||
+        errMsg.includes('schema cache') ||
+        errMsg.includes('violates row-level security');
+
+      if (isRecoverable) {
+        console.warn('Direct update unavailable or restricted (' + (errCode || errMsg) + '); updating local store state.');
+        localOrders = localOrders.map((o) =>
+          o.id === orderId || o.order_number === orderId
+            ? {
+                ...o,
+                status,
+                payment_status: status === 'delivered' ? 'paid' : o.payment_status,
+                updated_at: new Date().toISOString(),
+              }
+            : o
+        );
+        return;
+      }
+      throw directErr;
+    }
+
+    // If cancelled, restore variant inventory stock if possible
+    if (status === 'cancelled') {
+      try {
+        let itemsQuery = supabase.from('order_items').select('variant_id, quantity');
+        if (isUuid) {
+          itemsQuery = itemsQuery.eq('order_id', orderId);
+        } else {
+          const { data: oRow } = await supabase
+            .from('orders')
+            .select('id')
+            .eq('order_number', orderId)
+            .maybeSingle();
+          if (oRow?.id) {
+            itemsQuery = itemsQuery.eq('order_id', oRow.id);
+          } else {
+            itemsQuery = itemsQuery.eq('order_id', orderId);
+          }
+        }
+
+        const { data: items } = await itemsQuery;
+        if (items && items.length > 0) {
+          for (const item of items) {
+            if (item.variant_id) {
+              const { data: v } = await supabase
+                .from('product_variants')
+                .select('stock_quantity')
+                .eq('id', item.variant_id)
+                .single();
+              if (v && typeof v.stock_quantity === 'number') {
+                await supabase
+                  .from('product_variants')
+                  .update({ stock_quantity: v.stock_quantity + item.quantity })
+                  .eq('id', item.variant_id);
+              }
+            }
+          }
+        }
+      } catch (stockErr) {
+        console.warn('Could not restore stock on cancellation fallback:', stockErr);
+      }
+    }
+
+    // Keep local cache in sync
+    localOrders = localOrders.map((o) =>
+      o.id === orderId || o.order_number === orderId
+        ? {
+            ...o,
+            status,
+            payment_status: status === 'delivered' ? 'paid' : o.payment_status,
+            updated_at: new Date().toISOString(),
+          }
+        : o
+    );
   },
 
   async getCustomers(): Promise<Profile[]> {

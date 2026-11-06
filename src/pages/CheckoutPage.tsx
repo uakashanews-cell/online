@@ -9,7 +9,8 @@ import { useStore } from '../context/StoreContext';
 import { CheckoutFormData, Order } from '../types';
 import { formatPKR, validateCheckoutForm } from '../utils/ecommerce-logic';
 import { ImageWithFallback } from '../components/common/ImageWithFallback';
-import { ShieldCheck, Truck, Banknote, ArrowLeft, CheckCircle2, Lock } from 'lucide-react';
+import { ShieldCheck, Truck, Banknote, ArrowLeft, CheckCircle2, Lock, AlertCircle } from 'lucide-react';
+import { saveGuestOrder } from '../utils/guestOrders';
 import { usePageSEO } from '../hooks/usePageSEO';
 
 const PAKISTAN_CITIES = [
@@ -87,6 +88,17 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const updateField = (field: keyof CheckoutFormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
+
   useEffect(() => {
     if (currentUser) {
       setFormData((prev) => ({
@@ -129,7 +141,20 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     const validation = validateCheckoutForm(formData);
     if (!validation.isValid) {
       setErrors(validation.errors);
-      showToast('Please fix the errors in the delivery form', 'error');
+      const firstKey = Object.keys(validation.errors)[0] as keyof CheckoutFormData;
+      const firstError = validation.errors[firstKey];
+      showToast(firstError || 'Please fix the errors in the delivery form', 'error');
+
+      const targetEl = document.getElementById(`checkout-${firstKey}`);
+      if (targetEl) {
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        targetEl.focus();
+      } else {
+        const formEl = document.getElementById('checkout-delivery-form');
+        if (formEl) {
+          formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
       return;
     }
 
@@ -139,6 +164,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     try {
       const result = await placeOrder(formData);
       if (result.success && result.order) {
+        saveGuestOrder(result.order.order_number, result.order.customer_phone);
         handleOrderSuccess(result.order);
       } else {
         showToast(result.error || 'Failed to place order. Returning to cart.', 'error');
@@ -170,9 +196,41 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <form onSubmit={handleSubmit} noValidate className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Delivery Details Form */}
-        <div className="lg:col-span-7 space-y-6">
+        <div id="checkout-delivery-form" className="lg:col-span-7 space-y-6">
+          {/* Validation Error Alert Banner */}
+          {Object.keys(errors).length > 0 && (
+            <div
+              className="bg-[#B3372F]/10 border border-[#B3372F]/30 text-[#B3372F] p-4 rounded-[16px] text-xs space-y-2 animate-in fade-in"
+              role="alert"
+            >
+              <div className="flex items-center gap-2 font-bold text-sm">
+                <AlertCircle className="w-4 h-4 text-[#B3372F] shrink-0" />
+                <span>Please fix the following required fields to place your order:</span>
+              </div>
+              <ul className="list-disc list-inside space-y-1 text-xs pl-1">
+                {Object.entries(errors).map(([fieldKey, err]) => (
+                  <li key={fieldKey}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const el = document.getElementById(`checkout-${fieldKey}`);
+                        if (el) {
+                          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                          el.focus();
+                        }
+                      }}
+                      className="font-semibold underline hover:text-[#8a221c] text-left cursor-pointer"
+                    >
+                      {err}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <div className="bg-[#FBF5EC] rounded-[24px] border border-[#E3D5C4] p-6 sm:p-8 shadow-xs space-y-6">
             <div>
               <h2 className="font-serif text-xl font-bold text-[#3B2A20] flex items-center gap-2">
@@ -188,15 +246,17 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
             <div className="space-y-4">
               {/* Full Name */}
               <div>
-                <label className="block text-xs font-semibold text-[#3B2A20] mb-1.5 uppercase tracking-wider">
+                <label htmlFor="checkout-fullName" className="block text-xs font-semibold text-[#3B2A20] mb-1.5 uppercase tracking-wider">
                   Full Name <span className="text-[#B3372F]">*</span>
                 </label>
                 <input
+                  id="checkout-fullName"
                   type="text"
                   required
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  value={formData.fullName || ''}
+                  onChange={(e) => updateField('fullName', e.target.value)}
                   placeholder="e.g. Muhammad Usman"
+                  aria-invalid={Boolean(errors.fullName)}
                   className={`w-full px-4 py-2.5 min-h-[44px] bg-white border rounded-[12px] text-xs text-[#3B2A20] placeholder:text-[#6B5B50] focus:outline-hidden focus:ring-2 focus:ring-[#B4502F] ${
                     errors.fullName ? 'border-[#B3372F] bg-[#B3372F]/5' : 'border-[#E3D5C4]'
                   }`}
@@ -209,21 +269,23 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
               {/* Phone & Email */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-[#3B2A20] mb-1.5 uppercase tracking-wider">
+                  <label htmlFor="checkout-phone" className="block text-xs font-semibold text-[#3B2A20] mb-1.5 uppercase tracking-wider">
                     Mobile Number <span className="text-[#B3372F]">*</span>
                   </label>
                   <input
+                    id="checkout-phone"
                     type="tel"
                     required
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="0300-1234567"
+                    value={formData.phone || ''}
+                    onChange={(e) => updateField('phone', e.target.value)}
+                    placeholder="0300-1234567 or +92 300 1234567"
+                    aria-invalid={Boolean(errors.phone)}
                     className={`w-full px-4 py-2.5 min-h-[44px] bg-white border rounded-[12px] text-xs text-[#3B2A20] placeholder:text-[#6B5B50] focus:outline-hidden focus:ring-2 focus:ring-[#B4502F] ${
                       errors.phone ? 'border-[#B3372F] bg-[#B3372F]/5' : 'border-[#E3D5C4]'
                     }`}
                   />
                   <span className="text-[11px] text-[#6B5B50] block mt-0.5">
-                    For rider call upon delivery
+                    For rider call upon delivery (e.g. 0300-1234567 or +92 303 9160621)
                   </span>
                   {errors.phone && (
                     <p className="text-xs text-[#B3372F] mt-1 font-medium">{errors.phone}</p>
@@ -231,14 +293,16 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[#3B2A20] mb-1.5 uppercase tracking-wider">
+                  <label htmlFor="checkout-email" className="block text-xs font-semibold text-[#3B2A20] mb-1.5 uppercase tracking-wider">
                     Email Address <span className="text-[#6B5B50] font-normal">(Optional)</span>
                   </label>
                   <input
+                    id="checkout-email"
                     type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    value={formData.email || ''}
+                    onChange={(e) => updateField('email', e.target.value)}
                     placeholder="usman@example.com"
+                    aria-invalid={Boolean(errors.email)}
                     className={`w-full px-4 py-2.5 min-h-[44px] bg-white border rounded-[12px] text-xs text-[#3B2A20] placeholder:text-[#6B5B50] focus:outline-hidden focus:ring-2 focus:ring-[#B4502F] ${
                       errors.email ? 'border-[#B3372F] bg-[#B3372F]/5' : 'border-[#E3D5C4]'
                     }`}
@@ -254,15 +318,17 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
               {/* Complete Address */}
               <div>
-                <label className="block text-xs font-semibold text-[#3B2A20] mb-1.5 uppercase tracking-wider">
+                <label htmlFor="checkout-address" className="block text-xs font-semibold text-[#3B2A20] mb-1.5 uppercase tracking-wider">
                   Complete Street Address <span className="text-[#B3372F]">*</span>
                 </label>
                 <textarea
+                  id="checkout-address"
                   required
                   rows={2}
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  value={formData.address || ''}
+                  onChange={(e) => updateField('address', e.target.value)}
                   placeholder="House / Flat #, Street #, Sector / Area, Landmark..."
+                  aria-invalid={Boolean(errors.address)}
                   className={`w-full px-4 py-2.5 bg-white border rounded-[12px] text-xs text-[#3B2A20] placeholder:text-[#6B5B50] focus:outline-hidden focus:ring-2 focus:ring-[#B4502F] ${
                     errors.address ? 'border-[#B3372F] bg-[#B3372F]/5' : 'border-[#E3D5C4]'
                   }`}
@@ -275,23 +341,30 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
               {/* City, Province, Postal Code */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-[#3B2A20] mb-1.5 uppercase tracking-wider">
+                  <label htmlFor="checkout-city" className="block text-xs font-semibold text-[#3B2A20] mb-1.5 uppercase tracking-wider">
                     City <span className="text-[#B3372F]">*</span>
                   </label>
                   <input
+                    id="checkout-city"
                     list="pakistan-cities"
                     type="text"
                     required
-                    value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    value={formData.city || ''}
+                    onChange={(e) => updateField('city', e.target.value)}
                     placeholder="e.g. Lahore"
-                    className="w-full px-3 py-2.5 min-h-[44px] bg-white border border-[#E3D5C4] rounded-[12px] text-xs text-[#3B2A20] focus:outline-hidden focus:ring-2 focus:ring-[#B4502F]"
+                    aria-invalid={Boolean(errors.city)}
+                    className={`w-full px-3 py-2.5 min-h-[44px] bg-white border rounded-[12px] text-xs text-[#3B2A20] focus:outline-hidden focus:ring-2 focus:ring-[#B4502F] ${
+                      errors.city ? 'border-[#B3372F] bg-[#B3372F]/5' : 'border-[#E3D5C4]'
+                    }`}
                   />
                   <datalist id="pakistan-cities">
                     {PAKISTAN_CITIES.map((c) => (
                       <option key={c} value={c} />
                     ))}
                   </datalist>
+                  {errors.city && (
+                    <p className="text-xs text-[#B3372F] mt-1 font-medium">{errors.city}</p>
+                  )}
                 </div>
 
                 <div>
@@ -300,7 +373,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                   </label>
                   <select
                     value={formData.province}
-                    onChange={(e) => setFormData({ ...formData, province: e.target.value })}
+                    onChange={(e) => updateField('province', e.target.value)}
                     className="w-full px-3 py-2.5 min-h-[44px] bg-white border border-[#E3D5C4] rounded-[12px] text-xs text-[#3B2A20] focus:outline-hidden focus:ring-2 focus:ring-[#B4502F]"
                   >
                     <option value="Sindh">Sindh</option>
@@ -319,7 +392,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                   <input
                     type="text"
                     value={formData.postalCode}
-                    onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
+                    onChange={(e) => updateField('postalCode', e.target.value)}
                     placeholder="75500"
                     className="w-full px-3 py-2.5 min-h-[44px] bg-white border border-[#E3D5C4] rounded-[12px] text-xs text-[#3B2A20] focus:outline-hidden focus:ring-2 focus:ring-[#B4502F]"
                   />

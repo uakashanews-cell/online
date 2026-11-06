@@ -25,6 +25,7 @@ import {
   X,
   Sparkles,
   LayoutDashboard,
+  Package,
   PackageCheck,
   LogOut,
   AlertCircle,
@@ -235,6 +236,17 @@ export const StoreLayout: React.FC = () => {
                 </Link>
               )}
 
+              {/* My Orders Button */}
+              <Link
+                to="/my-orders"
+                aria-label="My Orders"
+                title="My Orders"
+                className="hidden lg:flex items-center gap-1.5 px-3.5 py-2 min-h-[44px] rounded-full text-xs font-semibold text-[#3B2A20] hover:text-[#B4502F] hover:bg-[#F3E9DC] border border-[#E3D5C4] transition-colors"
+              >
+                <Package className="w-4 h-4 text-[#8A9A7B]" strokeWidth={1.5} />
+                <span>My Orders</span>
+              </Link>
+
               {/* Wishlist */}
               <Link
                 to={profile ? '/wishlist' : '/login?redirect=/wishlist'}
@@ -351,6 +363,18 @@ export const StoreLayout: React.FC = () => {
               </NavLink>
 
               <NavLink
+                to="/my-orders"
+                className={({ isActive }) =>
+                  `transition-colors flex items-center gap-1.5 ${
+                    isActive ? 'text-[#3B2A20] font-bold border-b-2 border-[#B4502F] pb-0.5' : 'text-[#6B5B50] hover:text-[#B4502F]'
+                  }`
+                }
+              >
+                <Package className="w-3.5 h-3.5 text-[#8A9A7B]" strokeWidth={1.5} />
+                My Orders
+              </NavLink>
+
+              <NavLink
                 to="/track-order"
                 className={({ isActive }) =>
                   `transition-colors flex items-center gap-1.5 ${
@@ -414,6 +438,14 @@ export const StoreLayout: React.FC = () => {
                 All Products
               </Link>
               <Link
+                to="/my-orders"
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-3 text-left rounded-full bg-[#F3E9DC] text-[#3B2A20] font-medium text-xs flex items-center justify-center gap-1.5 min-h-[44px] border border-[#E3D5C4]"
+              >
+                <Package className="w-4 h-4 text-[#8A9A7B]" strokeWidth={1.5} />
+                My Orders
+              </Link>
+              <Link
                 to="/track-order"
                 onClick={() => setMobileMenuOpen(false)}
                 className="p-3 text-left rounded-full bg-[#F3E9DC] text-[#3B2A20] font-medium text-xs flex items-center justify-center gap-1.5 min-h-[44px] border border-[#E3D5C4]"
@@ -424,7 +456,7 @@ export const StoreLayout: React.FC = () => {
               <Link
                 to="/cart"
                 onClick={() => setMobileMenuOpen(false)}
-                className="p-3 text-left rounded-full bg-[#B4502F] text-white font-semibold text-xs flex items-center justify-center gap-1.5 min-h-[44px]"
+                className="col-span-2 p-3 text-left rounded-full bg-[#B4502F] text-white font-semibold text-xs flex items-center justify-center gap-1.5 min-h-[44px]"
               >
                 <ShoppingBag className="w-4 h-4 text-white" strokeWidth={1.5} />
                 Cart ({totalCartCount})

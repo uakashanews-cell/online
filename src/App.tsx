@@ -21,6 +21,7 @@ import { CartPage } from './pages/CartPage';
 import { CheckoutPage } from './pages/CheckoutPage';
 import { OrderSuccessPage } from './pages/OrderSuccessPage';
 import { TrackOrderPage } from './pages/TrackOrderPage';
+import { MyOrdersPage } from './pages/MyOrdersPage';
 import { AccountPage } from './pages/AccountPage';
 import { AuthPage } from './pages/AuthPage';
 import { AboutPage, ContactPage, PrivacyPage, DeliveryAndPaymentPage } from './pages/StaticPages';
@@ -79,6 +80,7 @@ export default function App() {
                   <Route path="checkout" element={<CheckoutPage />} />
                   <Route path="order-success/:orderNumber" element={<OrderSuccessPage />} />
                   <Route path="track-order" element={<TrackOrderPage />} />
+                  <Route path="my-orders" element={<MyOrdersPage />} />
 
                   {/* Auth Routes */}
                   <Route path="login" element={<AuthPage initialMode="login" />} />

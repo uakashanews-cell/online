@@ -623,8 +623,11 @@ END;
 $$;
 
 -- 3.7 update_order_status RPC (Admin only, restores stock on cancellation)
+DROP FUNCTION IF EXISTS public.update_order_status(uuid, text);
+DROP FUNCTION IF EXISTS public.update_order_status(text, text);
+
 CREATE OR REPLACE FUNCTION public.update_order_status(
-  p_order_id uuid,
+  p_order_id text,
   p_status text
 )
 RETURNS void
@@ -635,6 +638,7 @@ AS $$
 DECLARE
   v_old_status text;
   v_item record;
+  v_target_id uuid;
 BEGIN
   IF NOT public.is_admin() THEN
     RAISE EXCEPTION 'Access denied: Administrator privileges required';
@@ -644,9 +648,11 @@ BEGIN
     RAISE EXCEPTION 'Invalid order status: %', p_status;
   END IF;
 
-  SELECT status INTO v_old_status
+  SELECT id, status INTO v_target_id, v_old_status
   FROM public.orders
-  WHERE id = p_order_id
+  WHERE id::text = trim(p_order_id)
+     OR upper(order_number) = upper(trim(p_order_id))
+  LIMIT 1
   FOR UPDATE;
 
   IF NOT FOUND THEN
@@ -655,7 +661,7 @@ BEGIN
 
   -- Restore stock quantities if status is changed to cancelled
   IF p_status = 'cancelled' AND v_old_status <> 'cancelled' THEN
-    FOR v_item IN SELECT variant_id, quantity FROM public.order_items WHERE order_id = p_order_id LOOP
+    FOR v_item IN SELECT variant_id, quantity FROM public.order_items WHERE order_id = v_target_id LOOP
       IF v_item.variant_id IS NOT NULL THEN
         UPDATE public.product_variants
         SET stock_quantity = stock_quantity + v_item.quantity
@@ -666,10 +672,30 @@ BEGIN
 
   UPDATE public.orders
   SET status = p_status,
+      payment_status = CASE WHEN p_status = 'delivered' THEN 'paid' ELSE payment_status END,
       updated_at = now()
-  WHERE id = p_order_id;
+  WHERE id = v_target_id;
 END;
 $$;
+
+-- UUID signature overload
+CREATE OR REPLACE FUNCTION public.update_order_status(
+  p_order_id uuid,
+  p_status text
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  PERFORM public.update_order_status(p_order_id::text, p_status);
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.update_order_status(text, text) TO anon, authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.update_order_status(uuid, text) TO anon, authenticated, service_role;
+
 
 -- 3.8 admin_dashboard_stats RPC
 CREATE OR REPLACE FUNCTION public.admin_dashboard_stats(
